@@ -1,0 +1,23 @@
+.katex {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.katex .textrm,
+.katex .textrm *,
+.katex .text,
+.katex .text *,
+.katex .textnormal,
+.katex .textnormal *,
+.katex .textsf,
+.katex .textsf *,
+.katex .texttt,
+.katex .texttt *,
+.katex .mainrm,
+.katex .mainrm * {
+  font-family: 'demoKaTeXText', serif !important;
+}
+.katex .mathnormal {
+  font-family: 'demoKaTeXText', serif !important;
+  font-style: normal;
+}

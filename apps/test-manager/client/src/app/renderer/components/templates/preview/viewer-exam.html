@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>プレビュー</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    html {
+      box-sizing: border-box;
+      background-color: #F5F6F8;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: inherit;
+    }
+
+    /* A4固定 */
+    :root {
+      --page-width-mm: 210;
+      --page-height-mm: 297;
+      --wrapper-pad-top-mm: 8;
+      --wrapper-pad-right-mm: 16;
+      --wrapper-pad-bottom-mm: 8;
+      --wrapper-pad-left-mm: 16;
+      --page-footer-reserve-mm: 20;
+      --image-scale: 0.2;
+      --size: A4 portrait;
+      --font-size-pt: 12;
+    }
+
+    @page {
+      size: var(--size);
+      margin: 0;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px 0;
+      font-size: calc(var(--font-size-pt) * 1pt);
+      font-family: MathMainForQ, 游明朝, "Hiragino Mincho ProN W3", "ヒラギノ明朝 ProN W3", "Hiragino Mincho ProN", HG明朝E, "ＭＳ Ｐ明朝", "ＭＳ 明朝", serif !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      counter-set: preview-page 0;
+      background: transparent;
+    }
+
+    .print-page,
+    .print-firstpage {
+      page-break-after: always;
+      position: relative;
+      width: calc(var(--page-width-mm) * 1mm);
+      height: calc(var(--page-height-mm) * 1mm);
+      padding: 5mm 15mm 0 15mm;
+      /* 画面上の見た目 */
+      background-color: #ffffff;
+      margin: 16px auto;
+      /* 中央寄せ＋ページ間の余白 */
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .print-page::after {
+      counter-increment: preview-page 1;
+      content: "- " counter(preview-page) " -";
+      position: absolute;
+      top: calc((var(--page-height-mm) - var(--page-footer-reserve-mm)) * 1mm + 5mm);
+      left: 105mm;
+    }
+
+    .print-page.blank-page::after {
+      counter-increment: none;
+      content: none;
+    }
+
+    .page-counter-reset::before {
+      counter-set: preview-page 0;
+    }
+
+    .subcategory-name {
+      font-weight: 600;
+    }
+
+    .question-wrapper,
+    .answer-wrapper {
+      page-break-inside: avoid;
+      padding-top: calc(var(--wrapper-pad-top-mm) * 1mm);
+      padding-right: calc(var(--wrapper-pad-right-mm) * 1mm);
+      padding-bottom: calc(var(--wrapper-pad-bottom-mm) * 1mm);
+      padding-left: calc(var(--wrapper-pad-left-mm) * 1mm);
+      /*      width: 190mm;*/
+      display: block;
+      clear: both;
+    }
+
+    .question-num {
+      display: inline-block;
+    }
+
+    .question-boxes {
+      margin: 0 2mm;
+    }
+
+    .answer {
+      font-weight: bold;
+    }
+
+    .katex {
+      line-height: 1.2;
+      text-indent: 1px;
+    }
+
+    img {
+      display: inline-block;
+      zoom: var(--image-scale);
+      /*      height: auto;*/
+      vertical-align: middle;
+      image-rendering: -webkit-optimize-contrast;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+
+    }
+
+    /** 画像だけの行は字下げなし */
+    .sub-dividable-sentence:has(> img:only-child),
+    .sub-dividable-sentence:has(> img + img) {
+      padding-left: 0;
+    }
+
+    .tmp {
+      position: absolute;
+      left: -10000px;
+      top: 0;
+      visibility: hidden;
+      pointer-events: none;
+      width: calc(var(--page-width-mm) * 1mm);
+      /* 計測対象ページ幅に合わせる */
+    }
+
+    .category-wrapper {
+      display: flex;
+      align-items: center;
+    }
+
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      margin-left: 3mm;
+      min-width: 70px;
+    }
+
+    .page-div {
+      font-size: 8pt;
+    }
+
+    .test-section-div {
+      border: 1px solid rgba(0, 0, 0, 0);
+      overflow: hidden;
+    }
+
+    .answer-title {
+      font-size: 24pt;
+      border: solid 0.3mm #000;
+      padding: 0 3mm;
+      margin: 0 0 5mm 0;
+      display: inline-block;
+    }
+
+    .cover-year-grade {
+      font-size: 16pt;
+      /*      margin: auto;*/
+      text-align: left;
+      padding-top: 10mm;
+      width: 150mm;
+    }
+
+    .q-num,
+    .cover-grade {
+      font-size: 26pt;
+      line-height: 1.25;
+      margin: 4mm 0 0;
+      text-align: center;
+    }
+
+    .title {
+      font-size: 30pt;
+      font-weight: 500;
+      padding: 15mm 0 0 0;
+      line-height: 12mm;
+    }
+
+    .date {
+      padding: 10mm 0 0 0;
+    }
+
+    .title .date {
+      text-align: center;
+    }
+
+    .date-span {
+      padding-left: 10mm;
+    }
+
+    .cover-stack {
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      padding: 16mm 14mm 12mm;
+    }
+
+    .cover-subject {
+      font-size: 18pt;
+      padding: 0;
+      line-height: 8mm;
+    }
+
+    .cover-kind {
+      font-size: 18pt;
+      padding: 2mm 0;
+    }
+
+    /*    .exam-cover,
+    .middle-cover,
+    .answer-cover {
+      padding: 0;
+      overflow: hidden;
+    }
+*/
+
+    .cover-image-frame {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-top: 8mm;
+    }
+
+    .cover-image,
+    .middle-cover-image {
+      zoom: 1 !important;
+      width: auto;
+      max-width: 170mm;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .answer-cover-image {
+      zoom: initial;
+      width: 500px;
+      height: 500px;
+    }
+
+    .cover-image {
+      max-height: 78mm;
+    }
+
+
+    /*
+    .choice-count-display {
+      margin-top: 5mm;
+      font-family: "Hiragino Sans W6", "Hiragino Kaku Gothic ProN", "メイリオ", Meiryo, sans-serif;
+      font-size: 12pt;
+      letter-spacing: 0.08em;
+    }
+    */
+
+    .warning {
+      padding-top: 5mm;
+      padding-bottom: 5mm;
+      width: 150mm;
+      margin-right: auto;
+      margin-left: auto;
+      font-size: 12pt;
+    }
+
+    .warning-span {
+      font-weight: bold;
+    }
+
+    .warning-p {
+      text-align: left;
+      margin: 0;
+      padding-left: 2em;
+      text-indent: -2em;
+    }
+
+    .warning-p:first-child {
+      margin-top: 0;
+    }
+
+    .school {
+      font-size: 12pt;
+    }
+
+    .student-info {
+      width: fit-content;
+      font-size: 9pt;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .student-class {
+      border-bottom: 0.3mm solid #000;
+      margin-bottom: 5mm;
+      text-align: right;
+      display: inline-block;
+    }
+
+    .student-name {
+      border-bottom: 0.3mm solid #000;
+      text-align: right;
+      display: inline-block;
+    }
+
+    .student-name {
+      padding-right: 50mm;
+    }
+
+    .date {
+      text-align: center;
+    }
+
+    .answer-subject {
+      margin-top: 8mm;
+      font-size: 20pt;
+      line-height: 1.35;
+      text-align: center;
+    }
+
+    .choices-p {
+      padding-left: 4.4em;
+      text-indent: -1.75em;
+      page-break-inside: avoid;
+    }
+
+    .choice-group {
+      text-indent: -1.75em;
+      clear: both;
+      padding-left: 4.125em;
+    }
+
+    /* 各選択肢ブロック内で float を閉じる */
+    .choice-group>.sub-dividable-block {
+      display: flow-root;
+    }
+
+    .top-level {
+      display: inline;
+      text-indent: -1.5em;
+    }
+
+    /* 既存の .top-level { display: inline; } の影響を限定解除 */
+    .choice-group .top-level {
+      display: block;
+    }
+
+    .ql-formula {
+      display: inline-block;
+      text-indent: initial;
+      margin: 1mm 0;
+      /* これがないと分数などが被ることがある*/
+    }
+
+    .float-image-run {
+      clear: both;
+      padding-left: 0;
+      text-indent: 0;
+    }
+
+    .float-image-run img {
+      float: none !important;
+      display: inline-block !important;
+      vertical-align: top;
+    }
+
+    .float-composite,
+    .float-sentence {
+      display: block;
+      margin: 0;
+      padding: 0;
+      /*      text-indent: initial;*/
+    }
+
+    p {
+      font-size: calc(var(--font-size-pt) * 1pt);
+      padding: 0;
+      margin: 0;
+      text-indent: initial;
+    }
+
+
+    .num-p {
+      font-weight: bold;
+      margin: 0;
+      /*
+      padding-left: 0.25em;
+      padding-top: 5mm;
+      */
+    }
+
+    .kotae {
+      padding-right: 0.75em;
+      padding-left: 1.25em;
+    }
+
+    /*
+    img {
+      zoom: 0.18;
+      display: inline-block;
+      height: auto;
+      vertical-align: middle;
+      image-rendering: -webkit-optimize-contrast;
+    }
+    */
+    .float-and-float {
+      clear: both;
+    }
+
+    .ql-indent-1 {
+      padding-left: 3em !important;
+    }
+
+    .ql-indent-2 {
+      padding-left: 6em !important;
+    }
+
+    .ql-indent-3 {
+      padding-left: 9em !important;
+    }
+
+    .ql-indent-4 {
+      padding-left: 12em !important;
+    }
+
+    .ql-indent-5 {
+      padding-left: 15em !important;
+    }
+
+    .ql-indent-6 {
+      padding-left: 18em !important;
+    }
+
+    .ql-indent-7 {
+      padding-left: 21em !important;
+    }
+
+    .ql-indent-8 {
+      padding-left: 24em !important;
+    }
+
+    .ql-indent-9 {
+      padding-left: 27em !important;
+    }
+
+    /* 選択肢先頭pにql-indent-Nが付いた場合、番号(.choice-index-mark)だけを
+       元のハンギング位置に戻し、番号ごと右にずれないようにする */
+    [data-part$="choice"] p.ql-indent-1 .choice-index-mark { margin-left: -3em; }
+    [data-part$="choice"] p.ql-indent-2 .choice-index-mark { margin-left: -6em; }
+    [data-part$="choice"] p.ql-indent-3 .choice-index-mark { margin-left: -9em; }
+    [data-part$="choice"] p.ql-indent-4 .choice-index-mark { margin-left: -12em; }
+    [data-part$="choice"] p.ql-indent-5 .choice-index-mark { margin-left: -15em; }
+    [data-part$="choice"] p.ql-indent-6 .choice-index-mark { margin-left: -18em; }
+    [data-part$="choice"] p.ql-indent-7 .choice-index-mark { margin-left: -21em; }
+    [data-part$="choice"] p.ql-indent-8 .choice-index-mark { margin-left: -24em; }
+    [data-part$="choice"] p.ql-indent-9 .choice-index-mark { margin-left: -27em; }
+
+    html[data-preview-scope='create-pdf'] img[data-preview-image-error='missing-size'] {
+      outline: 1px solid #b42318;
+      outline-offset: 2px;
+    }
+
+    .float-and-float {
+      clear: both;
+    }
+
+    .measure-page-shell {
+      position: absolute;
+      left: -10000px;
+      top: 0;
+      visibility: hidden;
+      pointer-events: none;
+      width: calc(var(--page-width-mm) * 1mm);
+      padding: 5mm 15mm 0 15mm;
+      /*      box-sizing: border-box;*/
+      margin: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+  </style>
+  <style>
+    html[data-show-measure-shells='1'] #page-body {
+      display: grid;
+      grid-template-columns: max-content max-content;
+      gap: 24px 24px;
+      align-items: start;
+      justify-content: center;
+    }
+
+    html[data-show-measure-shells='1'] #title-container {
+      grid-column: 1 / -1;
+    }
+
+    html[data-show-measure-shells='1'] #question-container {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    html[data-show-measure-shells='1'] #tmp-question-container {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    html[data-show-measure-shells='1'] #answer-container {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
+    html[data-show-measure-shells='1'] #tmp-answer-container {
+      grid-column: 2;
+      grid-row: 3;
+    }
+
+    html[data-show-measure-shells='1'] .measure-page-shell {
+      position: relative;
+      left: auto;
+      top: auto;
+      visibility: visible;
+      pointer-events: auto;
+      margin: 16px auto;
+      background-color: #fff;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.12);
+    }
+
+    html[data-show-measure-shells='1'] #tmp-question-container::before,
+    html[data-show-measure-shells='1'] #tmp-answer-container::before,
+    html[data-show-measure-shells='1'] #question-container::before,
+    html[data-show-measure-shells='1'] #answer-container::before {
+      display: block;
+      margin-bottom: 8px;
+      font: 600 12px/1.4 sans-serif;
+      color: #555;
+    }
+
+    html[data-show-measure-shells='1'] #question-container::before {
+      content: '本番 Question';
+    }
+
+    html[data-show-measure-shells='1'] #tmp-question-container::before {
+      content: 'TMP Question';
+    }
+
+    html[data-show-measure-shells='1'] #answer-container::before {
+      content: '本番 Answer';
+    }
+
+    html[data-show-measure-shells='1'] #tmp-answer-container::before {
+      content: 'TMP Answer';
+    }
+
+    html[data-show-paginate-debug='1'] .paginate-debug-badge {
+      position: absolute;
+      right: 6mm;
+      bottom: calc(var(--page-footer-reserve-mm) * 1mm + 2mm);
+      z-index: 20;
+      padding: 2px 6px;
+      font: 11px/1.3 monospace;
+      color: #7a1f1f;
+      background: rgba(255, 245, 245, 0.95);
+      border: 1px solid rgba(122, 31, 31, 0.25);
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    .print-firstpage table {
+      width: 154mm;
+      border-collapse: collapse;
+      margin: auto;
+      margin-bottom: 15mm;
+    }
+
+    .print-firstpage td {
+      font-size: 10pt;
+      border-bottom: 0.3mm dashed #000000;
+      padding-top: 2mm;
+    }
+
+    .question-sub-title,
+    .answer-sub-title {
+      font-size: 20pt;
+      font-weight: 500;
+      margin: 0;
+      margin-top: 0;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <article id="page-body">
+    <div id="title-container"></div>
+    <div id="question-container"></div>
+    <div id="answer-container"></div>
+    <div id="tmp-question-container"></div>
+    <div id="tmp-answer-container"></div>
+  </article>
+
+  <!-- 表紙テンプレート -->
+  <div id="tmp-title" class="tmp">
+    <section id="common-cover" class="print-firstpage exam-cover">
+      <div class="cover-stack">
+        <p class="cover-year-grade">年度１級建築士</p>
+
+        <p class="title">模擬試験</p>
+        <p class="school"></p>
+        <p class="cover-kind"></p>
+        <p class="cover-subject"></p>
+        <div class="cover-image-frame">
+          <img class="cover-image question-cover-image" data-cover-image="question-cover" alt="" />
+        </div>
+        <div class="warning">
+          <p class="warning-p"><span class="warning-span">次の注意事項</span>及び
+            <span class="warning-span">答案用紙の注意事項</span>
+            をよく読んでから始めてください。
+          </p>
+          <p class="warning-p warning-span">【注意事項】</p>
+          <p class="warning-p">１．この問題用紙は、計算等に使用しても差しつかえありません。</p>
+          <p class="warning-p">２．問題は、すべて<span class="warning-span choice-count-display">四枝択一式</span>です。</p>
+          <p class="warning-p">３．<span class="warning-span">解答は</span>、
+            各問題とも<span class="warning-span">一つだけ答案用紙の回答欄に</span>
+            所定の要領ではっきりとマークしてください。</p>
+          <p class="warning-p">４．<span class="warning-span">解答に当たり</span>、
+            <span class="warning-span">適用すべき法令</span>については、
+            <span class="warning-span"><span class="warning-span-year"></span>年１月１日</span>現在において施行されているものとします。
+          </p>
+          <p class="warning-p">５．解答に当たり、地方公共団体の条例については、
+            考慮しないことにします。</p>
+        </div>
+        <div class="student-info">
+          <p class="student-class">
+            <span class="ka" style="padding-left:30mm;">科</span>
+            <span class="nen" style="padding-left:10mm;">年</span>
+            <span class="kumi" style="padding-left:10mm;">組</span>
+            <span class="ban" style="padding-left:10mm;">番</span>
+          </p>
+          <p class="student-name">氏名</p>
+        </div>
+        <p class="date">年<span class="date-span"><span class="date-span"></span>月<span class="date-span"><span
+                class="date-span"></span>日</span>実施</span></p>
+      </div>
+    </section>
+    <section class="print-page blank-page"></section>
+  </div>
+
+
+  <!-- 解説用表紙テンプレート -->
+  <div id="tmp-answer-title" class="tmp">
+    <section class="print-firstpage answer-cover">
+      <div class="cover-stack">
+        <p class="cover-year-grade">年度１級建築士</p>
+        <p class="title"></p>
+        <p class="school"></p>
+        <p><span class="cover-subject"></span><span class="cover-kind"></span></p>
+        <div class="cover-image-frame">
+          <img class="answer-cover-image" data-cover-image="answer-cover" alt="" />
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 問題テンプレート -->
+  <div id="tmp-question" class="tmp">
+    <div class="num-to-ichimonme sub-dividable-group">
+      <p class="num-p sub-dividable-block">
+        <span class="question-meta question-num sub-dividable-sentence">
+          <span class="no"> </span><span class="no-display"></span>
+        </span>
+      </p>
+      <p class="question-honbun sub-dividable-block"></p>
+    </div>
+    <div class="choice-group sub-dividable-group">
+    </div>
+  </div>
+
+  <!-- 解説テンプレート -->
+  <div id="tmp-answer" class="tmp">
+    <div class="num-to-ichimonme sub-dividable-group">
+      <p class="num-p sub-dividable-block">
+        <span class="answer-meta sub-dividable-sentence">
+          <span class="no"></span>
+          <span class="kotae"></span>
+          <span class="year"></span>
+          <span class="difficult"></span>
+        </span>
+      </p>
+      <p class="answer-honbun sub-dividable-block"></p>
+    </div>
+    <div class="choice-group sub-dividable-group">
+    </div>
+  </div>
+</body>
+
+</html>

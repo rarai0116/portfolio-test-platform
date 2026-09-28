@@ -1,0 +1,13 @@
+node_modules
+.DS_Store
+firestore-debug.log
+dist
+.pnpm-store
+apps/qaa/.env
+
+apps/qaa/.env.prod
+
+apps/qaa/.env.test
+
+apps/qaa/dist-cjs/
+

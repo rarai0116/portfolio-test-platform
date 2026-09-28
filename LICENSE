@@ -1,0 +1,116 @@
+# 利用条件
+
+Copyright (c) 2026 Studio Corobo
+
+本リポジトリは、開発者の実績を示す目的で公開しています。  
+オープンソースソフトウェアとして提供するものではありません。
+
+## 許諾する範囲
+
+次の行為を許諾します。
+
+- 本リポジトリの閲覧
+- 採用選考、業務委託の検討、またはこれに準じる評価を目的とした、内容の確認
+- 上記の目的に限り、ローカル環境へ複製し、実行すること
+
+GitHub上での表示およびforkは、GitHubの利用規約に基づくものです。本条件はこれを妨げません。
+
+## 留保する権利
+
+上記以外の権利は、すべて留保します。  
+とくに次の行為は許諾していません。
+
+- 再配布および公衆送信
+- 改変物の公開
+- 商用利用
+- 全部または一部を、他の著作物へ組み込むこと
+
+## 適用の範囲
+
+本条件が対象とするのは、本リポジトリに含まれる、Studio Coroboが著作権を有する
+プログラム、文書、および図版です。
+
+次のものは対象外です。
+
+- **依存パッケージ**：それぞれのライセンスに従います
+- **各社のロゴおよび商標**：各権利者に帰属します。構成図やスクリーンショットの中で、
+  該当するサービスや製品を指す用途に限って使用しています
+- **同梱のデータ**：問題・解説データおよび画像アセットはAIが生成したダミーです。
+  利用者情報や学習履歴も架空のものです。教材内容としての正確性は保証していません
+
+## 担当の表示について
+
+`docs/contributors/` 配下の各ページは、開発における担当範囲を示すものです。  
+著作権の帰属を変更するものではありません。
+
+## 無保証
+
+本リポジトリは現状有姿で提供します。いかなる保証も行いません。  
+利用によって生じた損害について、責任を負いません。
+
+## その他の利用について
+
+上記の範囲を超える利用をご希望の場合は、[arai@studio-corobo.com](mailto:arai@studio-corobo.com) へご相談ください。
+
+# Terms of Use
+
+Copyright (c) 2026 Studio Corobo
+
+This repository is published to demonstrate the developer's work.  
+It is not offered as open source software.
+
+## What is permitted
+
+The following are permitted:
+
+- Viewing this repository
+- Reviewing its contents for the purpose of recruitment, evaluating a potential
+  contract, or a comparable assessment
+- Copying it to a local environment and running it, solely for that purpose
+
+Display and forking on GitHub are governed by the GitHub Terms of Service.  
+These terms do not restrict them.
+
+## What is reserved
+
+All other rights are reserved.  
+In particular, the following are not permitted:
+
+- Redistribution or public transmission
+- Publishing modified versions
+- Commercial use
+- Incorporating any part of this repository into another work
+
+## Scope
+
+These terms apply to the programs, documents, and diagrams in this repository
+in which Studio Corobo holds copyright.
+
+The following are outside their scope:
+
+- **Dependencies**: governed by their respective licenses
+- **Third-party logos and trademarks**: owned by their respective holders, used
+  only to identify the corresponding service or product in diagrams and screenshots
+- **Bundled data**: the questions, explanations, and image assets are AI-generated
+  dummies. User records and study logs are fictitious. No accuracy is claimed for
+  them as teaching material
+
+## On contributor pages
+
+Each page under `docs/contributors/` describes a person's area of responsibility
+in the project. It does not alter the ownership of copyright.
+
+## No warranty
+
+This repository is provided as is, without warranty of any kind.  
+No liability is accepted for any damage arising from its use.
+
+## Other uses
+
+For any use beyond the above, please contact [arai@studio-corobo.com](mailto:arai@studio-corobo.com).
+
+---
+
+日本語版と英語版とで内容に相違がある場合は、日本語版が優先します。
+
+If the Japanese and English versions differ, the Japanese version prevails.

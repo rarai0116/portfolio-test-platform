@@ -1,0 +1,49 @@
+# OS固有
+.DS_Store
+Thumbs.db
+
+# 依存関係
+node_modules/
+.pnpm-store/
+.yarn/
+dist/
+build/
+out/
+_tmp/
+
+# ログ・キャッシュ
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.vite/
+.cache/
+coverage/
+
+# 環境ファイル
+.env
+.env.*
+
+# Electronビルド成果物
+*.asar
+*.dmg
+*.exe
+*.app
+*.deb
+*.rpm
+*.snap
+
+
+# テスト成果物
+test-results/
+playwright-report/
+
+# その他
+*.lnk
+
+
+# --- portfolio: ダミー .env は公開する（レビュー者がそのまま起動できるようにするため） ---
+# 実 .env は手順A で除去され、手順B がダミーのみを配置するため、ここに実鍵は入らない。
+# .env.local / .env.prod / .env.test は引き続き無視する（実値の誤 commit 防止）。
+!.env
+!.env.development

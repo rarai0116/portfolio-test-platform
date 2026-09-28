@@ -1,0 +1,63 @@
+diff --git a/lib/module/ShiverBone.js b/lib/module/ShiverBone.js
+index 552fbbf..41b6082 100644
+--- a/lib/module/ShiverBone.js
++++ b/lib/module/ShiverBone.js
+@@ -1,6 +1,6 @@
+ import React, { memo } from "react";
+ import { View, StyleSheet } from "react-native";
+-import LinearGradient from "react-native-linear-gradient";
++import { LinearGradient } from "expo-linear-gradient";
+ import Animated, { useAnimatedStyle } from "react-native-reanimated";
+ import { useGetGradientTransform } from "./worklets";
+ import { useGetBoneStyles } from "./hooks/useGetBoneStyles";
+diff --git a/lib/typescript/constants/index.d.ts b/lib/typescript/constants/index.d.ts
+index 67f890e..322655d 100644
+--- a/lib/typescript/constants/index.d.ts
++++ b/lib/typescript/constants/index.d.ts
+@@ -1,6 +1,6 @@
+ /// <reference types="react" />
+ import { StyleProp, ViewStyle } from "react-native";
+-import { SharedValue, EasingFn } from "react-native-reanimated";
++import { SharedValue, EasingFunction } from "react-native-reanimated";
+ type _animationType = "none" | "shiver" | "pulse" | undefined;
+ type _animationDirection = "horizontalLeft" | "horizontalRight" | "verticalTop" | "verticalDown" | "diagonalDownLeft" | "diagonalDownRight" | "diagonalTopLeft" | "diagonalTopRight" | undefined;
+ export interface ICustomViewStyle extends ViewStyle {
+@@ -19,6 +19,6 @@ export interface ISkeletonProps {
+     highlightColor?: string | undefined;
+     easing?: {
+-        factory: () => EasingFn;
++        factory: () => EasingFunction;
+     };
+     children?: React.ReactNode;
+ }
+diff --git a/src/ShiverBone.tsx b/src/ShiverBone.tsx
+index 7e6443c..7ee54ae 100644
+--- a/src/ShiverBone.tsx
++++ b/src/ShiverBone.tsx
+@@ -1,6 +1,6 @@
+ import React, { memo } from "react";
+ import { View, StyleSheet } from "react-native";
+-import LinearGradient from "react-native-linear-gradient";
++import { LinearGradient } from "expo-linear-gradient";
+ import Animated, {
+   SharedValue,
+   useAnimatedStyle,
+diff --git a/src/constants/index.ts b/src/constants/index.ts
+index 1e121b5..2201477 100644
+--- a/src/constants/index.ts
++++ b/src/constants/index.ts
+@@ -1,5 +1,5 @@
+ import { StyleProp, ViewStyle } from "react-native";
+-import { Easing, SharedValue, EasingFn } from "react-native-reanimated";
++import { Easing, SharedValue, EasingFunction } from "react-native-reanimated";
+ 
+ type _animationType = "none" | "shiver" | "pulse" | undefined;
+ type _animationDirection =
+@@ -28,6 +28,6 @@ export interface ISkeletonProps {
+   boneColor?: string | undefined;
+   hasFadeIn?: boolean;
+   highlightColor?: string | undefined;
+-  easing?: { factory: () => EasingFn };
++  easing?: { factory: () => EasingFunction };
+   children?: React.ReactNode;
+ }

@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PDF作成View Hooks / Zustand責務仕様書</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f3ea;
+      --paper: #fffdf8;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #d6d3d1;
+      --accent: #1d4ed8;
+      --accent-soft: #dbeafe;
+      --warn: #92400e;
+      --warn-soft: #fef3c7;
+      --ok: #166534;
+      --ok-soft: #dcfce7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top right, #e0f2fe 0, transparent 28%),
+        linear-gradient(180deg, #faf7f0 0%, var(--bg) 100%);
+      color: var(--ink);
+      font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+      line-height: 1.7;
+    }
+
+    main {
+      width: min(1200px, calc(100vw - 32px));
+      margin: 24px auto 64px;
+      background: var(--paper);
+      border: 1px solid rgba(31, 41, 55, 0.08);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      margin-top: 40px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e7e5e4;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+
+    p,
+    li {
+      font-size: 0.97rem;
+    }
+
+    .lead {
+      color: var(--muted);
+      margin: 0 0 18px;
+    }
+
+    .note,
+    .warning,
+    .good {
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .note {
+      background: #f5f3ff;
+      border: 1px solid #ddd6fe;
+    }
+
+    .warning {
+      background: var(--warn-soft);
+      border: 1px solid #fcd34d;
+    }
+
+    .good {
+      background: var(--ok-soft);
+      border: 1px solid #86efac;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0 0;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #1e3a8a;
+      font-size: 0.84rem;
+      border: 1px solid #bfdbfe;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: #fff;
+    }
+
+    .card p:last-child,
+    .card ul:last-child {
+      margin-bottom: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th,
+    td {
+      border: 1px solid #d6d3d1;
+      padding: 12px;
+      vertical-align: top;
+      text-align: left;
+      font-size: 0.93rem;
+    }
+
+    th {
+      background: #f5f5f4;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88em;
+      background: #f5f5f4;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    ol,
+    ul {
+      padding-left: 1.3rem;
+    }
+
+    .small {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .mono-list li {
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 720px) {
+      main {
+        width: min(100vw - 16px, 1200px);
+        padding: 20px;
+        margin: 8px auto 32px;
+        border-radius: 18px;
+      }
+
+      th,
+      td {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <header>
+      <p class="small">docs/current / PDF作成View v2 / hooks・zustand責務整理</p>
+      <h1>PDF作成View Hooks / Zustand責務仕様書</h1>
+      <p class="lead">
+        本書は、PDF作成Viewで使用している hooks と zustand store の担当境界を整理し、
+        実装者が「どこに状態を置くべきか」「どの hook が何をしてよいか」を迷わないための作業用仕様書である。
+      </p>
+      <div class="pill-row">
+        <span class="pill">対象: apps/client/src/app/renderer/views/createPdf</span>
+        <span class="pill">主題: state ownership</span>
+        <span class="pill">主題: hook responsibility</span>
+        <span class="pill">主題: preview 境界</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1. 目的</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>1-1. 防ぎたいこと</h3>
+          <ul>
+            <li>同じ TestData を複数 hook が個別購読すること</li>
+            <li>draft state と取得キャッシュを同じ store に混在させること</li>
+            <li>preview 更新 command が panel / preview 側へ分散すること</li>
+            <li>一時モック機能が本実装責務に混入すること</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>1-2. 今回の判断</h3>
+          <ul>
+            <li>外部取得データは resource store に集約する</li>
+            <li>ユーザー編集値は draft store を正本にする</li>
+            <li>panel model hook は UI 向け adapter に専念する</li>
+            <li>snapshot 組立と commit は専用 hook に閉じる</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. 全体構造</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>層</th>
+            <th>主な担当</th>
+            <th>代表ファイル</th>
+            <th>やってはいけないこと</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Route / View</td>
+            <td>route mode 解決、panel 構成、resource 初期化、route snapshot 保存</td>
+            <td><code>index.tsx</code>, <code>routeModeState.ts</code></td>
+            <td>個別 UI の細かい編集ロジックを持たない</td>
+          </tr>
+          <tr>
+            <td>Resource store</td>
+            <td>TestData / TestDataCategory など外部取得済みデータの共有</td>
+            <td><code>useCreatePdfResourceStore.ts</code></td>
+            <td>ユーザー編集中の正本状態を持たない</td>
+          </tr>
+          <tr>
+            <td>Draft store</td>
+            <td>exam / workbook の編集中 state の正本</td>
+            <td><code>useExamDraftStore.ts</code>, <code>useWorkbookDraftStore.ts</code></td>
+            <td>Firestore や IPC を直接叩かない</td>
+          </tr>
+          <tr>
+            <td>Panel model hook</td>
+            <td>store から UI 用 adapter を組み立てる</td>
+            <td><code>useExamPanelModel.ts</code>, <code>useWorkbookPanelModel.ts</code></td>
+            <td>重い外部データ取得を始めない</td>
+          </tr>
+          <tr>
+            <td>Step2 hook / Step adapter</td>
+            <td>Step2 の編集 command を mode 別にまとめ、Step1 / Step3 の UI 契約は adapter type で表す</td>
+            <td><code>useExamStepTwo.ts</code>, <code>useWorkbookStepTwo.ts</code>, <code>panelModel.ts</code></td>
+            <td>route 制御や panel 表示判断を持たない</td>
+          </tr>
+          <tr>
+            <td>Preview commit hook</td>
+            <td>snapshot 組立、restoreState 構成、main への commit</td>
+            <td><code>useCreatePdfPreviewCommit.ts</code></td>
+            <td>UI の button 配置を持たない</td>
+          </tr>
+          <tr>
+            <td>Preview panel side</td>
+            <td>read、asset request、render 前後の patch 管理</td>
+            <td><code>createPdfPreviewOrderStore.ts</code>, <code>useCreatePdfPreviewController.ts</code></td>
+            <td>snapshot の業務組立をしない</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>3. Route とパネルの責務</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>経路</th>
+            <th>表示する主パネル</th>
+            <th>creationType</th>
+            <th>備考</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/createPdf/main</code></td>
+            <td><code>MainPanel</code></td>
+            <td><code>exam</code></td>
+            <td>暫定モック用。preview 更新 button と自動 commit をここに閉じる</td>
+          </tr>
+          <tr>
+            <td><code>/createPdf/exam</code></td>
+            <td><code>ExamPanel</code></td>
+            <td><code>exam</code></td>
+            <td>本実装側 UI。モック用 preview 更新 UI は置かない</td>
+          </tr>
+          <tr>
+            <td><code>/createPdf/workbook</code></td>
+            <td><code>WorkBookPanel</code></td>
+            <td><code>workbook</code></td>
+            <td>問題集モード本体</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning">
+        <strong>重要:</strong>
+        <code>main</code> は route mode であり、業務契約上の <code>creationType</code> ではない。
+        <code>creationType</code> は引き続き <code>exam</code> または <code>workbook</code> のみを使う。
+        これを崩すと preview IPC 契約や保存契約へ波及する。
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Zustand Store 対応表</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>store</th>
+            <th>正本として持つもの</th>
+            <th>読む代表 hook / component</th>
+            <th>持ってはいけないもの</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>useCreatePdfViewStore</code></td>
+            <td>route 共通の軽量状態。creationType、grade、title、出力先、preview issue の公開正本</td>
+            <td><code>index.tsx</code>, 各 panel model, alert 判定, preview controller</td>
+            <td>巨大 TestData 本体、preview snapshot 本体</td>
+          </tr>
+          <tr>
+            <td><code>useCreatePdfResourceStore</code></td>
+            <td>外部取得データ。TestData、TestDataCategory のキャッシュ</td>
+            <td><code>useCreatePdfPreviewCommit</code>, <code>useExamStepTwo</code>, 今後の category UI</td>
+            <td>編集途中の draft、UI dialog の開閉状態</td>
+          </tr>
+          <tr>
+            <td><code>useExamDraftStore</code></td>
+            <td>exam モード編集中の正本。basic / stepTwo / table / stepThree / meta</td>
+            <td><code>useExamPanelModel</code>, <code>useExamStepTwo</code>, mock preview controller</td>
+            <td>他 route の共有キャッシュ、preview asset 状態</td>
+          </tr>
+          <tr>
+            <td><code>useWorkbookDraftStore</code></td>
+            <td>workbook モード編集中の正本。basic / stepTwo / table / stepThree / meta</td>
+            <td><code>useWorkbookPanelModel</code>, <code>useWorkbookStepTwo</code></td>
+            <td>TestData キャッシュ、preview DOM patch キュー</td>
+          </tr>
+          <tr>
+            <td><code>createPdfPreviewOrderStore</code></td>
+            <td>previewPanel が描画するための order / session / patch queue / sessionIssues</td>
+            <td><code>useCreatePdfPreviewController</code>, <code>previewPanel.tsx</code></td>
+            <td>TestData、draft 正本、画面編集 command</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <strong>補足:</strong>
+        preview 関連 state は用途ごとに分かれている。
+        共通 UI から参照する preview 健全性の公開正本は <code>useCreatePdfViewStore</code> が担当し、
+        previewPanel の描画順序や patch queue、session 内 issue は <code>createPdfPreviewOrderStore</code> が担当する。
+        <code>useCreatePdfPreviewController</code> は両者の橋渡しとして、order store の状態を view store へ投影する。
+      </div>
+    </section>
+
+    <section>
+      <h2>5. Hook 対応表</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>hook</th>
+            <th>担当責務</th>
+            <th>依存してよいもの</th>
+            <th>依存してはいけないもの</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>useSyncCreatePdfTestData</code></td>
+            <td>grade に応じて TestData / TestDataCategory を取得し、resource store へ同期する</td>
+            <td>Firestore hook、preload API、resource store action</td>
+            <td>panel UI の step 状態、button 配置</td>
+          </tr>
+          <tr>
+            <td><code>useCreatePdfTestData</code></td>
+            <td>単純な TestData 取得 hook。resource store 同期用の下位 hook</td>
+            <td>typed firestore handler</td>
+            <td>draft store の編集 command</td>
+          </tr>
+          <tr>
+            <td><code>useCreatePdfPreviewCommit</code></td>
+            <td>snapshot builder 呼び出し、restoreState 構成、commit 実行</td>
+            <td>view store、draft store、resource store、image asset hook</td>
+            <td>button mount 位置や mock route 判定</td>
+          </tr>
+          <tr>
+            <td><code>useExamPanelModel</code></td>
+            <td>exam 用 adapter の組立、dirty 導出、grade 変更 dialog command、previewHealth 導出</td>
+            <td>exam draft store、view store selector、useExamStepTwo</td>
+            <td>Firestore 直接取得、preview commit 実行</td>
+          </tr>
+          <tr>
+            <td><code>useWorkbookPanelModel</code></td>
+            <td>workbook 用 adapter の組立、dirty 導出、grade 変更 dialog command、previewHealth 導出</td>
+            <td>workbook draft store、view store selector、useWorkbookStepTwo</td>
+            <td>TestData 取得、previewPanel 制御</td>
+          </tr>
+          <tr>
+            <td><code>useExamStepTwo</code></td>
+            <td>exam Step2 編集 command。frame 条件、section 更新、dirty key 更新</td>
+            <td>exam draft store、resource store</td>
+            <td>route 遷移、Dockview 制御</td>
+          </tr>
+          <tr>
+            <td><code>useWorkbookStepTwo</code></td>
+            <td>workbook Step2 編集 command。カテゴリ条件、行編集、dirty key 更新</td>
+            <td>workbook draft store</td>
+            <td>外部取得キャッシュの初期化</td>
+          </tr>
+          <tr>
+            <td><code>useCreatePdfPreviewController</code></td>
+            <td>previewPanel 側で read、必要画像抽出、asset request、patch queue 追加、currentPreviewState 更新</td>
+            <td>createPdfPreviewOrderStore、asset cache、view store action</td>
+            <td>業務用 snapshot 組立</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <strong>補足:</strong>
+        専用の Step1 / Step3 hook は廃止済みで、UI 向け契約は <code>panelModel.ts</code> の
+        adapter type に集約している。処理の実体は <code>useExamPanelModel</code> / <code>useWorkbookPanelModel</code>
+        が組み立てる。
+      </div>
+    </section>
+
+    <section>
+      <h2>6. データフロー</h2>
+      <ol>
+        <li><code>index.tsx</code> が route mode を解決し、activeGrade を決める。</li>
+        <li><code>useSyncCreatePdfTestData</code> が activeGrade に応じた TestData / TestDataCategory
+          を取得し、<code>useCreatePdfResourceStore</code> に同期する。</li>
+        <li>各 panel model / step hook は draft store を正本として編集し、必要に応じて resource store を参照する。Step3 adapter へは previewHealth
+          だけを渡す。</li>
+        <li><code>useCreatePdfPreviewCommit</code> は draft store と resource store を読み、preview snapshot を組み立てて main へ
+          commit する。</li>
+        <li><code>createPdfPreviewOrderStore</code> と <code>useCreatePdfPreviewController</code> は updated 通知を受け、キャッシュ
+          read と asset request を処理し、order store の sessionIssues を <code>useCreatePdfViewStore.currentPreviewState</code>
+          へ投影する。</li>
+        <li><code>PreviewPanel</code> は order store の snapshot を描画する。</li>
+      </ol>
+
+      <div class="good">
+        <strong>設計ルール:</strong>
+        「取得済み外部データは resource store」「ユーザー編集中の正本は draft store」「preview 表示順序は order store」に分ける。
+      </div>
+    </section>
+
+    <section>
+      <h2>7. MainPanel と preview 更新起点の位置づけ</h2>
+      <p>
+        <code>MainPanel</code> は現時点でも exam 系 hooks と previewPanel の局所確認用モックであり、
+        本実装の正式 panel ではない。一方で preview 更新責務の正本は
+        <code>CreatePdfView</code> 直下に置く <code>useCreatePdfPreviewUpdateController</code> に寄せる。
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>対象</th>
+            <th>責務</th>
+            <th>責務外</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>MainPanel</code></td>
+            <td>exam hooks の局所動作確認、preview 状態や issue 一覧の暫定表示</td>
+            <td>preview 更新責務の正本を持つこと</td>
+          </tr>
+          <tr>
+            <td><code>ExamPanel</code></td>
+            <td>本実装用 UI</td>
+            <td>モック限定の補助 UI を持ち込まない</td>
+          </tr>
+          <tr>
+            <td><code>CreatePdfView</code></td>
+            <td>共通 preview update controller の mount、commit 判定、panel への status adapter 配布</td>
+            <td>previewPanel の描画ロジックや order store の内部状態を直接持つこと</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning">
+        <strong>注意:</strong>
+        <code>MainPanelPreviewController</code> を残す場合でも、それは暫定の status 表示や manual refresh UI に留める。
+        自動 commit の起点判定と in-flight 制御は <code>useCreatePdfPreviewUpdateController</code> に集約し、
+        panel ごとに個別の listener や <code>useEffect</code> 監視を増やさない。
+      </div>
+    </section>
+
+    <section>
+      <h2>8. 実装者向け判断基準</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>8-1. 新しい状態を追加したいとき</h3>
+          <ul class="mono-list">
+            <li>外部から取得するデータなら <code>useCreatePdfResourceStore</code></li>
+            <li>編集中の入力値なら <code>useExamDraftStore</code> または <code>useWorkbookDraftStore</code></li>
+            <li>previewPanel の描画順や patch queue なら <code>createPdfPreviewOrderStore</code></li>
+            <li>route 共通の軽量状態なら <code>useCreatePdfViewStore</code></li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>8-2. 新しい hook を追加したいとき</h3>
+          <ul class="mono-list">
+            <li>UI adapter なら panel model hook に寄せる</li>
+            <li>Step2 の編集 command なら mode 別 step hook に寄せる</li>
+            <li>外部取得の同期なら sync hook に寄せる</li>
+            <li>preview commit は既存 hook に寄せ、panel 側へ分散させない</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>8-3. 禁止パターン</h3>
+          <ul class="mono-list">
+            <li>panel model の中で TestData を直接取得する</li>
+            <li>draft store に TestData や category cache を入れる</li>
+            <li>previewPanel 側で業務用 snapshot を再組立する</li>
+            <li>mock 専用 command を ExamPanel / WorkBookPanel に混ぜる</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>9. 現時点の暫定事項</h2>
+      <ul>
+        <li><code>useCreatePdfPreviewRuntimeStore</code> は廃止対象であり、preview 健全性の公開正本は
+          <code>useCreatePdfViewStore.currentPreviewState</code> に一本化する。
+        </li>
+        <li><code>useSyncCreatePdfTestData</code> は現在、grade 単位で TestDataCategory を全件再同期している。subject 単位の部分 invalidation
+          は未実装である。</li>
+        <li><code>useExamStepTwo</code> では category cache をまだ本格利用しておらず、現状は mock 用 section 生成が主用途である。</li>
+        <li><code>/createPdf/main</code> は暫定経路であり、正式仕様として固定したものではない。</li>
+      </ul>
+    </section>
+  </main>
+</body>
+
+</html>

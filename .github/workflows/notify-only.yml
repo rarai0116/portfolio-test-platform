@@ -1,0 +1,86 @@
+name: Notify Only (Discord test)
+
+on:
+  workflow_dispatch:
+    inputs:
+      overall:
+        description: "overall status: success or failure"
+        required: false
+        default: "success"
+      message:
+        description: "optional custom message to show in the embed"
+        required: false
+        default: ""
+
+jobs:
+  notify:
+    name: Post test notification to Discord
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          OVERALL: ${{ github.event.inputs.overall }}
+          MESSAGE: ${{ github.event.inputs.message }}
+          # optional placeholders so format is similar to real CI
+          LINT: "skipped (test)"
+          TYPECHECK: "skipped (test)"
+          UNIT: "skipped (test)"
+          E2E: "skipped (test)"
+          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          REF: ${{ github.ref }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+          SHA: ${{ github.sha }}
+        run: |
+          if [ -z "${DISCORD_WEBHOOK_URL}" ]; then
+            echo "DISCORD_WEBHOOK_URL not set. Skipping Discord notification."
+            exit 0
+          fi
+
+          # choose color based on overall
+          if [ "${OVERALL}" = "failure" ]; then
+            color=15158332
+          else
+            color=3066993
+          fi
+
+          # build json payload with jq (safe quoting)
+          json=$(jq -n \
+            --arg overall "$OVERALL" \
+            --arg message "$MESSAGE" \
+            --arg lint "$LINT" \
+            --arg type "$TYPECHECK" \
+            --arg unit "$UNIT" \
+            --arg e2e "$E2E" \
+            --arg commit "$COMMIT_URL" \
+            --arg run "$RUN_URL" \
+            --arg ref "$REF" \
+            --arg repo "$REPO" \
+            --arg sha "${SHA:0:7}" \
+            --arg actor "$ACTOR" \
+            --argjson color $color \
+            '{
+              username: "CI Bot (test)",
+              embeds: [{
+                title: "CI通知 (テスト)",
+                description: (if $message == "" then (if $overall == "success" then "✅ 成功" else "❌ 失敗" end) else $message end),
+                color: $color,
+                fields: [
+                  {name:"Lint", value:$lint, inline:true},
+                  {name:"TypeCheck", value:$type, inline:true},
+                  {name:"Unit", value:$unit, inline:true},
+                  {name:"E2E", value:$e2e, inline:true},
+                  {name:"Commit", value:$commit, inline:false},
+                  {name:"Run", value:$run, inline:false}
+                ],
+                footer: { text: ("Ref: " + $ref + " | " + $repo + " | by " + $actor + " | " + $sha) }
+              }]
+            }'
+          )
+
+          echo "Sending payload:"
+          echo "$json" | jq -C .
+
+          curl -s -H "Content-Type: application/json" -d "$json" "$DISCORD_WEBHOOK_URL"

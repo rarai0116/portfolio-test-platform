@@ -1,0 +1,41 @@
+{
+  "extends": "./node_modules/expo/tsconfig.base",
+  "compilerOptions": {
+    "module": "esnext",
+    "allowSyntheticDefaultImports": true,
+    "lib": ["dom", "esnext"],
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "target": "ES2022",
+    "typeRoots": ["node_modules/@types", "types"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "paths": {
+      "@/*": ["./*"],
+      "@components/*": ["./components/*"],
+      "@assets/*": ["./assets/*"],
+      "@pages/*": ["./components/pages/*"],
+      "@views/*": ["./components/views/*"],
+      "@organisms/*": ["./components/organisms/*"],
+      "@parts/*": ["./components/parts/*"],
+      "@identities/*": ["./components/identities/*"],
+      "@hooks/*": ["./components/hooks/*"],
+      "@functionals/*": ["./components/functionals/*"],
+      "commonUnionType": ["./types/commonUnionType"]
+    }
+  },
+  "include": [
+    "components/**/*",
+    "assets/**/*",
+    "types/**/*",
+    "stories/**/*",
+    "App.tsx",
+    "app.config.ts",
+    "web/**/*"
+  ],
+  "exclude": ["stories/**/*", "node_modules/**/*"]
+}

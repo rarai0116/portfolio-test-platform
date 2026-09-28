@@ -1,0 +1,59 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ],
+      "predeploy": [
+        "corepack pnpm --dir \"$RESOURCE_DIR\" run build"
+      ],
+      "runtime": "nodejs22"
+    }
+  ],
+  "emulators": {
+    "auth": {
+      "port": 9599
+    },
+    "functions": {
+      "port": 5501
+    },
+    "firestore": {
+      "port": 8581
+    },
+    "database": {
+      "port": 9500
+    },
+    "hosting": {
+      "port": 5502
+    },
+    "storage": {
+      "port": 9699
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4100
+    },
+    "hub": {
+      "port": 4600
+    },
+    "logging": {
+      "port": 4700
+    },
+    "singleProjectMode": true
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}

@@ -1,0 +1,37 @@
+type Props = {
+  size?: number;
+  fill?: string;
+  hoverFill?: string;
+};
+
+const EditIcon = (props: Props) => {
+  return (
+    <div
+      style={
+        {
+          '--hover-fill': props.hoverFill ? props.hoverFill : props.fill,
+        } as React.CSSProperties
+      }
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={props.size ? props.size : 24}
+        height={props.size ? props.size : 24}
+        viewBox="0 0 24 24"
+        className="svg-icon-svg"
+      >
+        <title>編集</title>
+        <g fill="none" fillRule="evenodd">
+          <path d="M24 0v24H0V0zM12.594 23.258l-.012.002-.071.035-.02.004-.014-.004-.071-.036c-.01-.003-.019 0-.024.006l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.016-.018m.264-.113-.014.002-.184.093-.01.01-.003.011.018.43.005.012.008.008.201.092c.012.004.023 0 .029-.008l.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l.015-.002.201-.093.01-.008.003-.011.018-.43-.003-.012-.01-.01z" />
+          <path
+            className="svg-icon-path"
+            fill={props.fill ? props.fill : '#ffffff'}
+            d="M13.896 3.03a2 2 0 0 1 2.701-.117l.127.117 4.243 4.243a2 2 0 0 1 .117 2.7l-.117.128-10.314 10.314a2 2 0 0 1-1.238.578L9.239 21H4.006a1.01 1.01 0 0 1-1.004-.9l-.006-.11v-5.233a2 2 0 0 1 .467-1.284l.12-.13L13.895 3.03ZM12.17 7.584l-7.174 7.174V19H9.24l7.174-7.174-4.243-4.243Zm3.14-3.14L13.584 6.17l4.243 4.243 1.726-1.726z"
+          />
+        </g>
+      </svg>
+    </div>
+  );
+};
+
+export default EditIcon;

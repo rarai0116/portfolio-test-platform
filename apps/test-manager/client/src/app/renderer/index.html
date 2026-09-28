@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <title>Test Manager</title>
+  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none';
+               img-src 'self' data: blob: demo-asset:;
+               style-src 'self' 'unsafe-inline';
+               font-src 'self' data:;
+               script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://*.gstatic.com;
+               connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://oauth2.googleapis.com https://*.googleapis.com https://*.gstatic.com https://*.google.com http://127.0.0.1:9099 http://127.0.0.1:9099 http://127.0.0.1:5001 http://127.0.0.1:5001 http://127.0.0.1:8080 http://127.0.0.1:8080 http://127.0.0.1:9199 http://127.0.0.1:9199 ws://127.0.0.1:* ws://127.0.0.1:*;
+               frame-src https://accounts.google.com https://*.google.com https://*.gstatic.com https://*.firebaseapp.com https://*.web.app https://*.googleusercontent.com;
+               child-src 'self' blob:;
+               worker-src 'self' blob:" />
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="./main.tsx"></script>
+</body>
+
+</html>

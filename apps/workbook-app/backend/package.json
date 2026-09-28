@@ -1,0 +1,19 @@
+{
+  "name": "workbook-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Firebase backend (emulators + functions) for the workbook app",
+  "scripts": {
+    "emulators:start": "firebase emulators:start --project demo-workbook-app --import=data --export-on-exit=data",
+    "build:functions": "corepack pnpm --dir functions run build",
+    "deploy:functions": "firebase deploy --only functions",
+    "emulators:start:persist": "firebase emulators:start --project demo-workbook-app --import=./data --export-on-exit=./data",
+    "emulators:start:persist:fresh": "firebase emulators:start --project demo-workbook-app --export-on-exit=./data"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "devDependencies": {
+    "firebase-tools": "^15.4.0"
+  }
+}

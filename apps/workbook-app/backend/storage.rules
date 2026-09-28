@@ -1,0 +1,18 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAuthenticated(){
+		return request.auth != null && request.auth.token.email.matches('.*@demoschool[.]ac[.]jp$');
+  	}
+    match /assets/{grade}/{fileType}/{file} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    // 上に当たらないパスは拒否する。Storage の既定も拒否だが、意図して
+    // 閉じていることを明示する（test-manager 側と揃える）。
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

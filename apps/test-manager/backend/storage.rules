@@ -1,0 +1,52 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Firestore のルールと対応する共通関数
+    function isSignedIn() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isAllowedDomain() {
+      return isSignedIn()
+        && request.auth.token.email is string
+        && (
+          request.auth.token.email.matches('.*@demoschool\\.jp$') ||
+          request.auth.token.email.matches('.*@demoschool\\.ac\\.jp$')
+        );
+    }
+
+    function canRead() {
+      return isAllowedDomain() && request.auth.token.atpAllowRead == true;
+    }
+
+    function canWrite() {
+      return isAllowedDomain() && request.auth.token.atpAllowWrite == true;
+    }
+
+    // Storage 側でのパス対応:
+    // Firestore: /storageList/{gradeId}/images/{doc}
+    // Storage : /original/{gradeId}/{doc}.png など
+    //
+    // ここでは「original/{gradeId}/...」配下を Firestore の storageList と対応する
+    // 画像オブジェクトとして扱い、同じ read/write ポリシーを適用します。
+    match /original/{gradeId}/{fileName} {
+      // gradeId は Firestore 側と同じ 'firstGrade' | 'secondGrade' のみ許可
+      allow read: if canRead() && (gradeId in ['firstGrade', 'secondGrade']);
+      allow write: if canWrite() && (gradeId in ['firstGrade', 'secondGrade']);
+    }
+
+    // typeはpngまたはjson
+    match /meta/{gradeId}/{type}/{fileName} {
+      // gradeId は Firestore 側と同じ 'firstGrade' | 'secondGrade' のみ許可
+      allow read: if canRead() && (gradeId in ['firstGrade', 'secondGrade']);
+      allow write: if canWrite() && (gradeId in ['firstGrade', 'secondGrade']);
+    }
+
+    // それ以外のパスはデフォルト拒否
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

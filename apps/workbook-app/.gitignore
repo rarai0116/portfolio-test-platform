@@ -1,0 +1,82 @@
+# Dependencies
+node_modules/
+apps/**/node_modules/
+
+# Expo / React Native generated files
+.expo/
+.cache/
+/ios/
+/android/
+/apps/client/ios/
+/apps/client/android/
+/dist/
+/apps/client/dist/
+/web-build/
+coverage/
+
+# Logs
+logs/
+*.log
+npm-debug.*
+yarn-debug.log*
+yarn-error.log*
+firebase-debug.log*
+firebase-debug.*.log*
+
+# Local environment and secrets
+.env*
+!.env.example
+!.env.*.example
+.secret.local
+apps/**/.env*
+!apps/**/.env.example
+!apps/**/.env.*.example
+apps/**/.secret.local
+sensitive/
+apps/**/sensitive/
+apps/**/functions/credentials/
+apps/**/functions/lib/credentials/
+
+# Firebase emulator data / exports
+apps/**/data/
+apps/**/firebase-export-*/
+apps/**/.firebase/
+
+# Signing and local binary artifacts
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.apk
+*.orig.*
+*.tar
+*.tgz
+*.zip
+build-*.tar.gz
+
+# OS / editor
+.DS_Store
+*.code-workspace
+*.lnk
+*.ini
+%ProgramData%/
+
+# Legacy root-only app paths kept out after monorepo move
+/components/pages/__TestPage.tsx
+/components/views/__testView.tsx
+/preview/
+/preview.tar
+/web/html/images/
+!/web/html/lib/
+/web/html/lib/secondGrade-export.json
+/typescript
+/public/
+
+# Local build and verification artifacts
+build-artifacts/
+
+# --- portfolio: ダミー .env は公開する（レビュー者がそのまま起動できるようにするため） ---
+# 実 .env は手順A で除去され、手順B がダミーのみを配置するため、ここに実鍵は入らない。
+# .env.local / .env.prod / .env.test は引き続き無視する（実値の誤 commit 防止）。
+!backend/functions/.secret.local

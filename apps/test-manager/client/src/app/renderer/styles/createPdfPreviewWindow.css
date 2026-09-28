@@ -1,0 +1,106 @@
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #F5F6F8;
+}
+
+[data-create-pdf-preview-toolbar] {
+
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 50;
+  display: flex;
+  height: 56px;
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  padding: 0 16px;
+  background: #F5F6F8;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+  font-family: "Noto Sans JP", "Roboto", sans-serif;
+}
+
+[data-create-pdf-preview-toolbar] [data-slot='button'] {
+  display: inline-flex;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 4px 8px;
+  border: 1px solid #006298;
+  border-radius: 8px;
+  background: #F5F6F8;
+  color: #006298;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+}
+
+[data-create-pdf-preview-toolbar] [data-slot='button']:hover {
+  background: #e8f2ff;
+}
+
+[data-create-pdf-preview-toolbar] [data-slot='button']:disabled {
+  border-color: transparent;
+  background: rgb(186 186 186 / 50%);
+  color: #ffffff;
+  cursor: default;
+}
+
+[data-create-pdf-preview-host] {
+  padding-top: 56px;
+}
+
+[data-create-pdf-preview-host] #page-body:not(:has(#question-container > *, #answer-container > *))::before {
+  position: fixed;
+  top: calc(50% + 28px);
+  left: 50%;
+  color: #6b727a;
+  content: "抽選を実行すると、ここにプレビューが表示されます";
+  font-family: "Noto Sans JP", "Roboto", sans-serif;
+  font-size: 14px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+[data-create-pdf-preview-loading-overlay] {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(58, 63, 69, 0.8);
+  color: #ffffff;
+  font-family: "Noto Sans JP", "Roboto", sans-serif;
+}
+
+[data-create-pdf-preview-loading-overlay] > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 0 24px;
+  text-align: center;
+}
+
+[data-create-pdf-preview-loading-overlay] p {
+  margin: 8px 0 0;
+}
+
+[data-create-pdf-preview-loading-overlay] p:first-child {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+[data-create-pdf-preview-loading-overlay] p:not(:first-child) {
+  font-size: 14px;
+}

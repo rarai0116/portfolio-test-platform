@@ -1,0 +1,182 @@
+name: CI
+
+# 公開用リポジトリでは自動実行させないため、workflow_dispatch に絞っている。
+# 実際の開発時のトリガーは、下にコメントアウトして残している。
+on:
+  workflow_dispatch: {}
+  # push:
+  #   branches: [main]
+  # pull_request:
+  #   branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 22
+
+jobs:
+  lint:
+    name: Lint (Biome + ESLint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Run Biome
+        run: pnpm run lint:biome
+      - name: Run ESLint
+        run: pnpm run lint:eslint
+
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+
+  unit:
+    name: Unit Tests (Vitest)
+    runs-on: ubuntu-latest
+    needs: [typecheck]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Run Vitest
+        run: pnpm run test:unit
+      - name: Upload Coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+
+  e2e:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    needs: [unit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright
+        run: pnpm run test:e2e
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+      - name: Upload Test Results (if any)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+          if-no-files-found: ignore
+
+  notify:
+    name: Notify Discord
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, unit, e2e]
+    if: always()
+    steps:
+      - name: Build summary
+        id: summary
+        run: |
+          echo "LINT=${{ needs.lint.result }}" >> $GITHUB_OUTPUT
+          echo "TYPECHECK=${{ needs.typecheck.result }}" >> $GITHUB_OUTPUT
+          echo "UNIT=${{ needs.unit.result }}" >> $GITHUB_OUTPUT
+          echo "E2E=${{ needs.e2e.result }}" >> $GITHUB_OUTPUT
+      - name: Post to Discord
+        # if: ${{ secrets.DISCORD_WEBHOOK_URL != '' }}
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          LINT: ${{ steps.summary.outputs.LINT }}
+          TYPECHECK: ${{ steps.summary.outputs.TYPECHECK }}
+          UNIT: ${{ steps.summary.outputs.UNIT }}
+          E2E: ${{ steps.summary.outputs.E2E }}
+          STATUS: ${{ job.status }}
+          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # シークレット未設定なら何もしない（exit 0 で成功扱い）
+          if [ -z "${DISCORD_WEBHOOK_URL}" ]; then
+            echo "DISCORD_WEBHOOK_URL not set. Skipping Discord notification."
+            exit 0
+          fi
+
+          overall="success"
+          for r in "$LINT" "$TYPECHECK" "$UNIT" "$E2E"; do
+            if [ "$r" != "success" ]; then overall="failure"; break; fi
+          done
+
+          color=3066993
+          if [ "$overall" = "failure" ]; then color=15158332; fi
+
+          # jq に渡す変数は --arg / --argjson で渡し、プログラム中は $name を使う
+          json=$(jq -n \
+            --arg lint "$LINT" \
+            --arg type "$TYPECHECK" \
+            --arg unit "$UNIT" \
+            --arg e2e "$E2E" \
+            --arg overall "$overall" \
+            --arg commit "$COMMIT_URL" \
+            --arg run "$RUN_URL" \
+            --arg ref "${GITHUB_REF}" \
+            --arg repo "${GITHUB_REPOSITORY}" \
+            --arg sha "${GITHUB_SHA:0:7}" \
+            --arg actor "${GITHUB_ACTOR}" \
+            --argjson color $color \
+            '{
+              username: "CI Bot",
+              embeds: [
+                {
+                  title: "CI結果",
+                  description: (if $overall == "success" then "✅ 成功" else "❌ 失敗" end),
+                  color: $color,
+                  fields: [
+                    {name:"Lint", value:$lint, inline:true},
+                    {name:"TypeCheck", value:$type, inline:true},
+                    {name:"Unit", value:$unit, inline:true},
+                    {name:"E2E", value:$e2e, inline:true},
+                    {name:"Commit", value:$commit, inline:false},
+                    {name:"Run", value:$run, inline:false}
+                  ],
+                  footer: { text: ("Ref: " + $ref + " | " + $repo + " | by " + $actor + " | " + $sha) }
+                }
+              ]
+            }'
+          )
+
+          # 最後に送信
+          curl -H "Content-Type: application/json" -d "$json" "$DISCORD_WEBHOOK_URL"

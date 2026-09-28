@@ -1,0 +1,293 @@
+.dev-pdf-mock {
+  --dev-pdf-blue: #77c0ff;
+  --dev-pdf-green: #85cf56;
+  --dev-pdf-red: #ff707a;
+}
+
+.dev-pdf-slider {
+  position: relative;
+  padding-top: 5.5rem;
+}
+
+.dev-pdf-slider.is-disabled {
+  opacity: 0.45;
+}
+
+.dev-pdf-slider__balloon {
+  position: absolute;
+  top: 0;
+  width: 88px;
+  min-height: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  padding: 0.5rem 0.35rem;
+  color: #fff;
+  border-radius: 14px;
+  transform: translateX(-50%);
+   box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
+}
+
+.dev-pdf-slider__balloon::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin-left: -7px;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 10px solid currentColor;
+  color: inherit;
+}
+
+.dev-pdf-slider__balloon--1 {
+  left: var(--pdf-slider-mid-one);
+  background: var(--color-white);
+  color: var(--color-black);
+}
+
+.dev-pdf-slider__balloon--2 {
+  left: var(--pdf-slider-mid-two);
+  background: var(--color-white);
+  color: var(--dev-pdf-green);
+}
+
+.dev-pdf-slider__balloon--3 {
+  left: var(--pdf-slider-mid-three);
+  background: var(--color-white);
+  color: var(--dev-pdf-red);
+}
+
+.dev-pdf-slider__balloon--1,
+.dev-pdf-slider__balloon--2,
+.dev-pdf-slider__balloon--3 {
+  color: inherit;
+}
+
+.dev-pdf-slider__star,
+.dev-pdf-slider__value,
+.dev-pdf-slider__hint {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+}
+
+.dev-pdf-slider__star {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.dev-pdf-slider__value {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.dev-pdf-slider__hint {
+  font-size: 0.68rem;
+  line-height: 1.2;
+}
+
+.dev-pdf-slider__track-wrap {
+  position: relative;
+  height: 24px;
+}
+
+.dev-pdf-slider__track {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    var(--dev-pdf-blue) 0%,
+    var(--dev-pdf-blue) var(--pdf-slider-low),
+    var(--dev-pdf-green) var(--pdf-slider-low),
+    var(--dev-pdf-green) var(--pdf-slider-high),
+    var(--dev-pdf-red) var(--pdf-slider-high),
+    var(--dev-pdf-red) 100%
+  );
+ /*  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.3); */
+}
+
+.dev-pdf-slider__range {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+.dev-pdf-slider__range::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  height: 24px;
+  background: transparent;
+}
+
+.dev-pdf-slider__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 1px solid #94a3b8;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.dev-pdf-slider__range::-moz-range-track {
+  height: 24px;
+  background: transparent;
+}
+
+.dev-pdf-slider__range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 1px solid #94a3b8;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.dev-pdf-slider__scale {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.dev-pdf-slider__scale::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 10px;
+  background:
+    linear-gradient(#cbd5e1, #cbd5e1) top/100% 2px no-repeat,
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 calc(20% - 1px),
+      #cbd5e1 calc(20% - 1px) 20%
+    );
+}
+
+.dev-pdf-slider__scale span {
+  text-align: center;
+}
+
+.dev-pdf-preview-sheet {
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+.dev-pdf-preview-sheet[data-mode='mock'] .dev-pdf-preview-sheet__hero {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(14, 165, 233, 0.02));
+}
+
+.dev-pdf-preview-sheet[data-mode='workbook'] .dev-pdf-preview-sheet__hero {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.14), rgba(132, 204, 22, 0.03));
+}
+
+.dev-pdf-preview-sheet__hero {
+  padding: 1.25rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.dev-pdf-preview-sheet__body {
+  padding: 1.25rem;
+}
+
+.dev-pdf-preview-sheet__line {
+  height: 10px;
+  border-radius: 9999px;
+  background: rgba(148, 163, 184, 0.25);
+  margin-bottom: 0.75rem;
+}
+
+.dev-pdf-preview-sheet__line--lg {
+  width: 88%;
+}
+
+.dev-pdf-preview-sheet__line--md {
+  width: 64%;
+}
+
+.dev-pdf-preview-sheet__line--sm {
+  width: 42%;
+}
+
+.dev-pdf-preview-sheet__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.dev-pdf-preview-sheet__box {
+  height: 66px;
+  border-radius: 14px;
+  border: 1px dashed rgba(148, 163, 184, 0.5);
+  background: rgba(241, 245, 249, 0.8);
+}
+
+.dev-pdf-group-dialog {
+  width: min(92vw, 880px);
+}
+
+.dev-pdf-group-dialog__body {
+  max-height: min(68vh, 720px);
+  overflow-y: auto;
+}
+
+.dev-pdf-group-dialog__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 0.875rem;
+  background: rgba(248, 250, 252, 0.9);
+}
+
+.dev-pdf-group-dialog__row:hover {
+  background: rgba(241, 245, 249, 0.96);
+}
+
+@media (max-width: 767px) {
+  .dev-pdf-slider {
+    padding-top: 6.25rem;
+  }
+
+  .dev-pdf-slider__balloon {
+    width: 74px;
+    min-height: 68px;
+    padding: 0.5rem 0.25rem;
+  }
+
+  .dev-pdf-preview-sheet__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dev-pdf-group-dialog__row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

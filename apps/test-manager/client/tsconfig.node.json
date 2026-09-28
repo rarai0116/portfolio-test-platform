@@ -1,0 +1,30 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
+  "include": [
+    "electron.vite.config.*",
+    "src/app/main/**/*",
+    "src/app/preload/**/*",
+    "resources/*",
+    "src/image.d.ts",
+    "src/app/shared/**/*"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "types": ["electron-vite/node", "vitest", "@testing-library/jest-dom"],
+    "moduleResolution": "bundler",
+    "target": "es2024",
+    "lib": ["ES2024"],
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "emitDecoratorMetadata": true,
+    "outDir": "./dist",
+    "paths": {
+      "@resources/*": ["./resources/*"],
+      "@renderer/*": ["./src/app/renderer/*"],
+      "@main/*": ["./src/app/main/*"],
+      "@shared/*": ["./src/app/shared/*"],
+    }
+  }
+}

@@ -1,0 +1,9 @@
+# 移植は functions/lib/ を common.exclude.list で除外する（ビルド成果物のため）。
+# 一方で emulator は lib/index.js を読むので、devLocal.cjs と移植の
+# build.workbook.functions がここへ出力する。追跡対象のままだと、ビルドの直後に
+# 「target app に未コミット変更がある」として次回の移植が preflight で止まる。
+#
+# 移植元は lib/ をコミットしているため .gitignore を持たない。test-manager の
+# 移植元は同じ内容を持っており、両者の非対称をここで揃えている。
+lib/**/*.js
+lib/**/*.js.map

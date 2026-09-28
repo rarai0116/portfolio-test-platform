@@ -1,0 +1,20 @@
+{
+  "type": "module",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "esModuleInterop": true,
+    "moduleResolution": "nodenext",
+    "noEmit": false,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "rootDir": "./src",
+    "outDir": "./lib",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2017",
+    "types": ["vitest/globals"]
+  },
+  "compileOnSave": true,
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "lib"]
+}

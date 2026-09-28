@@ -1,0 +1,33 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
+  "root": false,
+  "extends": "//",
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/.expo",
+      "!**/.agents",
+      "!**/.vscode",
+      "!**/_templates",
+      "!**/dist",
+      "!**/coverage",
+      "!**/assets",
+      "!**/fonts",
+      "!**/web",
+      "!**/*.html",
+      "!**/patches",
+      "!**/__Tests__",
+      "!**/__mocks__",
+      "!**/stories",
+      "!**/.storybook",
+      "!**/plugin",
+      "!components/functionals/react-native-modal",
+      "!babel.config.js",
+      "!metro.config.js",
+      "!webpack.config.js",
+      "!tailwind.config.js"
+    ]
+  }
+}

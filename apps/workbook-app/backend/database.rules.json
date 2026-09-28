@@ -1,0 +1,18 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "test": {
+      "$grade": {
+        ".read": "auth != null && auth.token.email.matches(/.*@demoschool[.]ac[.]jp$/)"
+      }
+    },
+
+    "assets": {
+      "$grade": {
+        ".read": "auth != null && auth.token.email.matches(/.*@demoschool[.]ac[.]jp$/)"
+      }
+    }
+  }
+}

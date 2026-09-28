@@ -1,0 +1,1245 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; connect-src 'none'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>メモリ計測 before / after 比較</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #172033;
+        --muted: #667085;
+        --line: #d8dee9;
+        --panel: #ffffff;
+        --surface: #f4f7fb;
+        --before: #3567c8;
+        --after: #df7a31;
+        --good: #16794b;
+        --warn: #9a6500;
+        --bad: #b42318;
+        --shadow: 0 10px 30px rgba(23, 32, 51, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--surface);
+        color: var(--ink);
+        font-family:
+          "Yu Gothic UI", "Yu Gothic", Meiryo, system-ui, sans-serif;
+        line-height: 1.6;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button,
+      select,
+      input[type="number"] {
+        min-height: 38px;
+        border: 1px solid #bfc8d6;
+        border-radius: 7px;
+        background: #fff;
+        color: var(--ink);
+      }
+
+      button {
+        padding: 7px 13px;
+        cursor: pointer;
+      }
+
+      button:hover:not(:disabled) {
+        border-color: #8091ac;
+        background: #f6f8fb;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.48;
+      }
+
+      select,
+      input[type="number"] {
+        padding: 5px 9px;
+      }
+
+      header {
+        padding: 28px max(24px, calc((100vw - 1440px) / 2));
+        background: linear-gradient(120deg, #17315e, #254f8f);
+        color: #fff;
+      }
+
+      header h1 {
+        margin: 0 0 6px;
+        font-size: clamp(1.45rem, 2.4vw, 2rem);
+      }
+
+      header p {
+        margin: 0;
+        color: #dce7f8;
+      }
+
+      main {
+        width: min(1440px, calc(100% - 32px));
+        margin: 24px auto 64px;
+      }
+
+      .panel {
+        margin-bottom: 20px;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .panel h2 {
+        margin: 0 0 14px;
+        font-size: 1.18rem;
+      }
+
+      .drop-zone {
+        display: grid;
+        min-height: 132px;
+        place-items: center;
+        padding: 20px;
+        border: 2px dashed #91a1bb;
+        border-radius: 10px;
+        background: #f8faff;
+        text-align: center;
+        transition: 0.15s ease;
+      }
+
+      .drop-zone.dragging {
+        border-color: var(--before);
+        background: #edf3ff;
+      }
+
+      .drop-zone strong {
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .drop-zone input {
+        max-width: 100%;
+      }
+
+      .toolbar,
+      .control-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        align-items: end;
+      }
+
+      .toolbar {
+        justify-content: space-between;
+        margin-top: 14px;
+      }
+
+      .control {
+        display: grid;
+        gap: 4px;
+      }
+
+      .control label {
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .control.small input {
+        width: 84px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .card {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: var(--shadow);
+      }
+
+      .card .label {
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .card .value {
+        margin-top: 5px;
+        font-size: 1.35rem;
+        font-weight: 800;
+      }
+
+      .grid-two {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .chart-wrap {
+        position: relative;
+        min-height: 360px;
+        overflow-x: auto;
+      }
+
+      svg.chart {
+        display: block;
+        width: 100%;
+        min-width: 680px;
+        height: 360px;
+      }
+
+      .chart text {
+        fill: #596579;
+        font-size: 12px;
+      }
+
+      .chart .axis {
+        stroke: #8793a6;
+      }
+
+      .chart .grid {
+        stroke: #e1e6ee;
+      }
+
+      .chart .mark-line {
+        stroke: #8d98aa;
+        stroke-dasharray: 4 4;
+      }
+
+      .tooltip {
+        position: fixed;
+        z-index: 20;
+        display: none;
+        max-width: 320px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        background: rgba(20, 29, 46, 0.94);
+        color: #fff;
+        font-size: 0.82rem;
+        pointer-events: none;
+        white-space: pre-line;
+      }
+
+      .table-scroll {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+
+      th,
+      td {
+        padding: 9px 10px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #f1f4f8;
+        white-space: nowrap;
+      }
+
+      td.number,
+      th.number {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .status {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .status.good {
+        background: #e7f7ef;
+        color: var(--good);
+      }
+
+      .status.warn {
+        background: #fff3d6;
+        color: var(--warn);
+      }
+
+      .status.bad {
+        background: #fdecea;
+        color: var(--bad);
+      }
+
+      .before-text {
+        color: var(--before);
+        font-weight: 700;
+      }
+
+      .after-text {
+        color: var(--after);
+        font-weight: 700;
+      }
+
+      .positive {
+        color: var(--bad);
+      }
+
+      .negative {
+        color: var(--good);
+      }
+
+      .muted,
+      .note {
+        color: var(--muted);
+      }
+
+      .note {
+        margin: 10px 0 0;
+        font-size: 0.86rem;
+      }
+
+      .message {
+        margin: 12px 0 0;
+        padding: 10px 12px;
+        border-left: 4px solid var(--warn);
+        background: #fff8e8;
+        color: #714d00;
+      }
+
+      .message:empty {
+        display: none;
+      }
+
+      .empty {
+        padding: 44px 12px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @media (max-width: 960px) {
+        .grid-two {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media print {
+        body {
+          background: #fff;
+        }
+
+        header {
+          padding: 16px 0;
+          background: #fff;
+          color: var(--ink);
+        }
+
+        header p {
+          color: var(--muted);
+        }
+
+        main {
+          width: 100%;
+          margin: 0;
+        }
+
+        .drop-zone,
+        .actions,
+        #clearButton {
+          display: none;
+        }
+
+        .panel,
+        .card {
+          break-inside: avoid;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>メモリ計測 before / after 比較</h1>
+      <p>JSONLをローカルで解析し、S0～S4の安定区間を比較します。データは外部送信しません。</p>
+    </header>
+
+    <main>
+      <section class="panel">
+        <h2>1. 計測ファイルを選択</h2>
+        <div id="dropZone" class="drop-zone">
+          <div>
+            <strong>before／afterのmemory-probe.jsonlをまとめて選択</strong>
+            <input id="fileInput" type="file" accept=".jsonl,.json" multiple />
+            <div class="note">ドラッグ＆ドロップにも対応しています。phaseとrunはstartレコードから判定します。</div>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div id="loadMessage" class="message"></div>
+          <button id="clearButton" type="button" disabled>選択をクリア</button>
+        </div>
+      </section>
+
+      <section id="filePanel" class="panel hidden">
+        <h2>2. 読み込み・採用状態</h2>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>採用</th>
+                <th>ファイル</th>
+                <th>phase</th>
+                <th>run</th>
+                <th>Commit</th>
+                <th>mark</th>
+                <th>sample</th>
+                <th>判定</th>
+                <th>詳細</th>
+              </tr>
+            </thead>
+            <tbody id="fileTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="controlsPanel" class="panel hidden">
+        <h2>3. 集計設定</h2>
+        <div class="control-grid">
+          <div class="control">
+            <label for="metricSelect">比較指標</label>
+            <select id="metricSelect"></select>
+          </div>
+          <div class="control">
+            <label for="withinSelect">安定区間内</label>
+            <select id="withinSelect">
+              <option value="median">中央値</option>
+              <option value="mean">平均値</option>
+              <option value="max">最大値</option>
+              <option value="end">区間末値</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="groupSelect">run統合</label>
+            <select id="groupSelect">
+              <option value="median">中央値</option>
+              <option value="mean">平均値</option>
+            </select>
+          </div>
+          <div class="control">
+            <label for="unitSelect">単位</label>
+            <select id="unitSelect">
+              <option value="MB">MB</option>
+              <option value="GB">GB</option>
+            </select>
+          </div>
+          <div class="control small">
+            <label for="s0Seconds">S0安定秒</label>
+            <input id="s0Seconds" type="number" min="5" max="600" step="5" value="30" />
+          </div>
+          <div class="control small">
+            <label for="otherSeconds">S1～S4安定秒</label>
+            <input id="otherSeconds" type="number" min="5" max="600" step="5" value="60" />
+          </div>
+          <div class="control">
+            <label for="timelineSelect">時系列run</label>
+            <select id="timelineSelect"></select>
+          </div>
+        </div>
+        <p class="note">代表値だけでメモリリークを断定せず、3runの範囲、S2→S3増加、S4後の値を合わせて確認してください。</p>
+      </section>
+
+      <section id="resultsArea" class="hidden">
+        <div id="summaryCards" class="cards"></div>
+
+        <section class="panel">
+          <h2>4. S0～S4 before／after比較</h2>
+          <div class="chart-wrap"><svg id="comparisonChart" class="chart" role="img" aria-label="before after比較グラフ"></svg></div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>段階</th>
+                  <th class="number">before</th>
+                  <th class="number">before範囲</th>
+                  <th class="number">after</th>
+                  <th class="number">after範囲</th>
+                  <th class="number">差</th>
+                  <th class="number">増減率</th>
+                </tr>
+              </thead>
+              <tbody id="comparisonTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="grid-two">
+          <section class="panel">
+            <h2>5. プロセス別working set</h2>
+            <div class="chart-wrap"><svg id="processChart" class="chart" role="img" aria-label="プロセス別メモリグラフ"></svg></div>
+          </section>
+          <section class="panel">
+            <h2>6. main／preview JSヒープ</h2>
+            <div class="chart-wrap"><svg id="heapChart" class="chart" role="img" aria-label="JSヒープ比較グラフ"></svg></div>
+          </section>
+        </div>
+
+        <section class="panel">
+          <h2>7. 個別run時系列</h2>
+          <div class="chart-wrap"><svg id="timelineChart" class="chart" role="img" aria-label="個別run時系列グラフ"></svg></div>
+        </section>
+
+        <section class="panel">
+          <h2>8. 比較結果の出力</h2>
+          <div class="actions">
+            <button id="exportJsonButton" type="button">集計JSONを保存</button>
+            <button id="exportCsvButton" type="button">表示中の表をCSV保存</button>
+            <button id="printButton" type="button">印刷／PDF保存</button>
+          </div>
+        </section>
+      </section>
+
+      <div id="emptyState" class="panel empty">比較するJSONLを選択してください。</div>
+    </main>
+
+    <div id="tooltip" class="tooltip"></div>
+
+    <script>
+      (() => {
+        'use strict';
+
+        const SVG_NS = 'http://www.w3.org/2000/svg';
+        const STAGES = ['S0', 'S1', 'S2', 'S3', 'S4'];
+        const PHASE_COLORS = { before: '#3567c8', after: '#df7a31' };
+        const PROCESS_COLORS = {
+          Browser: '#4059ad',
+          Tab: '#55a868',
+          GPU: '#c44e52',
+          Utility: '#8172b3',
+          Other: '#8c8c8c',
+        };
+        const METRICS = {
+          totalWorkingSet: { label: 'アプリ全体 working set', kind: 'process', field: 'workingSetSizeKb' },
+          totalPeakWorkingSet: { label: 'アプリ全体 peak working set', kind: 'process', field: 'peakWorkingSetSizeKb' },
+          browserWorkingSet: { label: 'Browser working set', kind: 'processType', type: 'Browser' },
+          tabWorkingSet: { label: 'Tab working set', kind: 'processType', type: 'Tab' },
+          gpuWorkingSet: { label: 'GPU working set', kind: 'processType', type: 'GPU' },
+          utilityWorkingSet: { label: 'Utility working set', kind: 'processType', type: 'Utility' },
+          mainHeap: { label: 'main JSヒープ', kind: 'window', windowKind: 'main' },
+          previewHeap: { label: 'preview JSヒープ', kind: 'window', windowKind: 'preview' },
+        };
+
+        const state = {
+          datasets: [],
+          nextId: 1,
+          metric: 'totalWorkingSet',
+          within: 'median',
+          group: 'median',
+          unit: 'MB',
+          s0Seconds: 30,
+          otherSeconds: 60,
+          timelineId: null,
+        };
+
+        const byId = (id) => document.getElementById(id);
+        const elements = {
+          fileInput: byId('fileInput'),
+          dropZone: byId('dropZone'),
+          clearButton: byId('clearButton'),
+          loadMessage: byId('loadMessage'),
+          filePanel: byId('filePanel'),
+          fileTableBody: byId('fileTableBody'),
+          controlsPanel: byId('controlsPanel'),
+          resultsArea: byId('resultsArea'),
+          emptyState: byId('emptyState'),
+          summaryCards: byId('summaryCards'),
+          metricSelect: byId('metricSelect'),
+          withinSelect: byId('withinSelect'),
+          groupSelect: byId('groupSelect'),
+          unitSelect: byId('unitSelect'),
+          s0Seconds: byId('s0Seconds'),
+          otherSeconds: byId('otherSeconds'),
+          timelineSelect: byId('timelineSelect'),
+          comparisonTableBody: byId('comparisonTableBody'),
+          tooltip: byId('tooltip'),
+        };
+
+        const finite = (value) => typeof value === 'number' && Number.isFinite(value);
+        const sum = (values) => values.reduce((total, value) => total + value, 0);
+        const mean = (values) => (values.length ? sum(values) / values.length : null);
+        const median = (values) => {
+          if (!values.length) return null;
+          const sorted = [...values].sort((a, b) => a - b);
+          const middle = Math.floor(sorted.length / 2);
+          return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+        };
+        const aggregate = (values, mode) => {
+          const valid = values.filter(finite);
+          if (!valid.length) return null;
+          if (mode === 'mean') return mean(valid);
+          if (mode === 'max') return Math.max(...valid);
+          if (mode === 'end') return valid[valid.length - 1];
+          return median(valid);
+        };
+        const shortCommit = (commit) => (typeof commit === 'string' ? commit.slice(0, 8) : '—');
+        const escapeCsv = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
+        const formatNumber = (value, digits = 1) =>
+          finite(value) ? value.toLocaleString('ja-JP', { minimumFractionDigits: digits, maximumFractionDigits: digits }) : '—';
+        const unitFactor = () => (state.unit === 'GB' ? 1024 : 1);
+        const displayValue = (mb) => (finite(mb) ? mb / unitFactor() : null);
+        const formatMemory = (mb) => `${formatNumber(displayValue(mb), state.unit === 'GB' ? 3 : 1)} ${state.unit}`;
+        const phaseRunLabel = (dataset) => `${dataset.phase ?? '?'} / RUN${dataset.run ?? '?'}`;
+
+        function sampleMetric(sample, metricKey) {
+          const definition = METRICS[metricKey];
+          if (!definition) return null;
+          if (definition.kind === 'window') {
+            const values = (Array.isArray(sample.windows) ? sample.windows : [])
+              .filter((window) => window.windowKind === definition.windowKind && finite(window.usedJsHeapBytes))
+              .map((window) => window.usedJsHeapBytes / 1024 / 1024);
+            return values.length ? sum(values) : null;
+          }
+          const processes = Array.isArray(sample.processes) ? sample.processes : [];
+          if (definition.kind === 'processType') {
+            const values = processes
+              .filter((process) => process.type === definition.type && finite(process.workingSetSizeKb))
+              .map((process) => process.workingSetSizeKb / 1024);
+            return values.length ? sum(values) : null;
+          }
+          const values = processes.filter((process) => finite(process[definition.field])).map((process) => process[definition.field] / 1024);
+          return values.length ? sum(values) : null;
+        }
+
+        function stableSeconds(stage) {
+          return stage === 'S0' ? state.s0Seconds : state.otherSeconds;
+        }
+
+        function stageValues(dataset, stage, metricKey) {
+          const mark = dataset.marks.find((record) => record.label === stage);
+          if (!mark) return [];
+          const start = Date.parse(mark.timestamp);
+          const end = start + stableSeconds(stage) * 1000;
+          return dataset.samples
+            .filter((sample) => {
+              const timestamp = Date.parse(sample.timestamp);
+              return Number.isFinite(timestamp) && timestamp >= start && timestamp <= end;
+            })
+            .map((sample) => sampleMetric(sample, metricKey))
+            .filter(finite);
+        }
+
+        function runStageValue(dataset, stage, metricKey) {
+          return aggregate(stageValues(dataset, stage, metricKey), state.within);
+        }
+
+        function selectedDatasets(phase) {
+          return state.datasets.filter((dataset) => dataset.included && !dataset.errors.length && (!phase || dataset.phase === phase));
+        }
+
+        function groupSummary(phase, stage, metricKey) {
+          const runValues = selectedDatasets(phase)
+            .map((dataset) => ({ dataset, value: runStageValue(dataset, stage, metricKey) }))
+            .filter((entry) => finite(entry.value));
+          const values = runValues.map((entry) => entry.value);
+          return {
+            value: aggregate(values, state.group),
+            min: values.length ? Math.min(...values) : null,
+            max: values.length ? Math.max(...values) : null,
+            mean: mean(values),
+            median: median(values),
+            count: values.length,
+            runs: runValues.map((entry) => ({ run: entry.dataset.run, file: entry.dataset.name, value: entry.value })),
+          };
+        }
+
+        function validateRecords(records, parseErrors) {
+          const errors = [...parseErrors];
+          const warnings = [];
+          if (!records.length) errors.push('有効なJSONレコードがありません');
+          const start = records[0];
+          const stop = records[records.length - 1];
+          if (start?.kind !== 'start') errors.push('先頭レコードがstartではありません');
+          if (stop?.kind !== 'stop') errors.push('末尾レコードがstopではありません');
+          if (start && !['before', 'after'].includes(start.phase)) errors.push('start.phaseがbefore/afterではありません');
+          if (start && !['1', '2', '3'].includes(String(start.run))) warnings.push('runが1～3ではありません');
+          const marks = records.filter((record) => record.kind === 'mark');
+          const labels = marks.map((record) => record.label).join(',');
+          if (labels !== STAGES.join(',')) errors.push(`mark順序が不正です: ${labels || '(なし)'}`);
+          const measurementErrors = records.filter((record) => record.kind === 'error');
+          if (measurementErrors.length) errors.push(`errorレコードが${measurementErrors.length}件あります`);
+          const samples = records.filter((record) => record.kind === 'sample');
+          if (!samples.length) errors.push('sampleがありません');
+          const gaps = [];
+          for (let index = 1; index < samples.length; index += 1) {
+            const gap = (Date.parse(samples[index].timestamp) - Date.parse(samples[index - 1].timestamp)) / 1000;
+            if (finite(gap)) gaps.push(gap);
+          }
+          if (gaps.length && Math.max(...gaps) > 7) warnings.push(`sample最大間隔が${Math.max(...gaps).toFixed(2)}秒です`);
+          if (samples.some((sample) => (sample.processes ?? []).some((process) => !finite(process.workingSetSizeKb)))) {
+            warnings.push('working setがnullのprocessを含みます');
+          }
+          const s2 = marks.find((mark) => mark.label === 'S2');
+          if (s2) {
+            const s2Time = Date.parse(s2.timestamp);
+            const postS2 = samples.filter((sample) => Date.parse(sample.timestamp) >= s2Time);
+            const previewValues = postS2.filter((sample) => finite(sampleMetric(sample, 'previewHeap')));
+            if (!previewValues.length) errors.push('S2以降のpreview JSヒープを取得できていません');
+          }
+          return { errors, warnings, start, stop, marks, samples };
+        }
+
+        async function parseFile(file) {
+          const text = await file.text();
+          const lines = text.split(/\r?\n/).filter((line) => line.trim());
+          const records = [];
+          const parseErrors = [];
+          lines.forEach((line, index) => {
+            try {
+              records.push(JSON.parse(line));
+            } catch (error) {
+              parseErrors.push(`${index + 1}行目: ${error instanceof Error ? error.message : String(error)}`);
+            }
+          });
+          const validation = validateRecords(records, parseErrors);
+          return {
+            id: state.nextId++,
+            fingerprint: `${file.name}:${file.size}:${file.lastModified}`,
+            name: file.name,
+            size: file.size,
+            records,
+            ...validation,
+            phase: validation.start?.phase ?? null,
+            run: validation.start?.run != null ? String(validation.start.run) : null,
+            commit: validation.start?.commit ?? null,
+            electronVersion: validation.start?.electronVersion ?? null,
+            chromeVersion: validation.start?.chromeVersion ?? null,
+            nodeVersion: validation.start?.nodeVersion ?? null,
+            included: validation.errors.length === 0,
+          };
+        }
+
+        async function loadFiles(files) {
+          const candidates = [...files].filter((file) => /\.(jsonl|json)$/i.test(file.name));
+          if (!candidates.length) {
+            elements.loadMessage.textContent = 'JSONLまたはJSONファイルを選択してください。';
+            return;
+          }
+          const existing = new Set(state.datasets.map((dataset) => dataset.fingerprint));
+          const newFiles = candidates.filter((file) => !existing.has(`${file.name}:${file.size}:${file.lastModified}`));
+          const parsed = await Promise.all(newFiles.map((file) => parseFile(file)));
+          state.datasets.push(...parsed);
+          state.datasets.sort((left, right) => `${left.phase}${left.run}${left.name}`.localeCompare(`${right.phase}${right.run}${right.name}`));
+          elements.loadMessage.textContent = newFiles.length ? `${newFiles.length}ファイルを読み込みました。` : '同じファイルは追加済みです。';
+          ensureTimelineSelection();
+          renderAll();
+        }
+
+        function createCell(row, value, className) {
+          const cell = document.createElement('td');
+          if (className) cell.className = className;
+          if (value instanceof Node) cell.append(value);
+          else cell.textContent = String(value ?? '');
+          row.append(cell);
+          return cell;
+        }
+
+        function renderFileTable() {
+          elements.fileTableBody.replaceChildren();
+          state.datasets.forEach((dataset) => {
+            const row = document.createElement('tr');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = dataset.included;
+            checkbox.disabled = dataset.errors.length > 0;
+            checkbox.setAttribute('aria-label', `${dataset.name}を比較に含める`);
+            checkbox.addEventListener('change', () => {
+              dataset.included = checkbox.checked;
+              ensureTimelineSelection();
+              renderResults();
+            });
+            createCell(row, checkbox);
+            createCell(row, dataset.name);
+            const phaseCell = createCell(row, dataset.phase ?? '—');
+            if (dataset.phase === 'before') phaseCell.className = 'before-text';
+            if (dataset.phase === 'after') phaseCell.className = 'after-text';
+            createCell(row, dataset.run ?? '—');
+            createCell(row, shortCommit(dataset.commit));
+            createCell(row, dataset.marks.map((mark) => mark.label).join(','));
+            createCell(row, dataset.samples.length, 'number');
+            const status = document.createElement('span');
+            status.className = `status ${dataset.errors.length ? 'bad' : dataset.warnings.length ? 'warn' : 'good'}`;
+            status.textContent = dataset.errors.length ? '不採用' : dataset.warnings.length ? '注意' : '正常';
+            createCell(row, status);
+            createCell(row, [...dataset.errors, ...dataset.warnings].join(' / ') || '—');
+            elements.fileTableBody.append(row);
+          });
+        }
+
+        function crossFileWarnings() {
+          const messages = [];
+          for (const phase of ['before', 'after']) {
+            const datasets = selectedDatasets(phase);
+            const commits = new Set(datasets.map((dataset) => dataset.commit));
+            const runs = datasets.map((dataset) => dataset.run);
+            if (commits.size > 1) messages.push(`${phase}内でCommitが一致していません`);
+            if (new Set(runs).size !== runs.length) messages.push(`${phase}に同じrunが複数選択されています`);
+            if (datasets.length && datasets.length !== 3) messages.push(`${phase}の採用ファイルは${datasets.length}件です（推奨3件）`);
+          }
+          const runtimes = new Set(selectedDatasets().map((dataset) => `${dataset.electronVersion}/${dataset.chromeVersion}/${dataset.nodeVersion}`));
+          if (runtimes.size > 1) messages.push('ランタイムバージョンが一致していません');
+          return messages;
+        }
+
+        function ensureTimelineSelection() {
+          const selected = selectedDatasets();
+          if (!selected.some((dataset) => dataset.id === state.timelineId)) state.timelineId = selected[0]?.id ?? null;
+        }
+
+        function renderControls() {
+          elements.timelineSelect.replaceChildren();
+          selectedDatasets().forEach((dataset) => {
+            const option = document.createElement('option');
+            option.value = String(dataset.id);
+            option.textContent = `${phaseRunLabel(dataset)} — ${dataset.name}`;
+            option.selected = dataset.id === state.timelineId;
+            elements.timelineSelect.append(option);
+          });
+        }
+
+        function setCard(label, value, detail) {
+          const card = document.createElement('div');
+          card.className = 'card';
+          const labelNode = document.createElement('div');
+          labelNode.className = 'label';
+          labelNode.textContent = label;
+          const valueNode = document.createElement('div');
+          valueNode.className = 'value';
+          valueNode.textContent = value;
+          const detailNode = document.createElement('div');
+          detailNode.className = 'note';
+          detailNode.textContent = detail;
+          card.append(labelNode, valueNode, detailNode);
+          elements.summaryCards.append(card);
+        }
+
+        function renderSummaryCards() {
+          elements.summaryCards.replaceChildren();
+          const beforeCount = selectedDatasets('before').length;
+          const afterCount = selectedDatasets('after').length;
+          const beforeS3 = groupSummary('before', 'S3', 'totalWorkingSet').value;
+          const afterS3 = groupSummary('after', 'S3', 'totalWorkingSet').value;
+          const beforeGrowth = finite(beforeS3) && finite(groupSummary('before', 'S2', 'totalWorkingSet').value)
+            ? beforeS3 - groupSummary('before', 'S2', 'totalWorkingSet').value
+            : null;
+          const afterGrowth = finite(afterS3) && finite(groupSummary('after', 'S2', 'totalWorkingSet').value)
+            ? afterS3 - groupSummary('after', 'S2', 'totalWorkingSet').value
+            : null;
+          const s3Delta = finite(beforeS3) && finite(afterS3) ? afterS3 - beforeS3 : null;
+          setCard('採用ファイル', `${beforeCount + afterCount}件`, `before ${beforeCount} / after ${afterCount}`);
+          setCard('S3 全体メモリ差', finite(s3Delta) ? `${s3Delta >= 0 ? '+' : ''}${formatMemory(s3Delta)}` : '—', 'after − before');
+          setCard('before S2→S3', finite(beforeGrowth) ? `${beforeGrowth >= 0 ? '+' : ''}${formatMemory(beforeGrowth)}` : '—', '再抽選10回による変化');
+          setCard('after S2→S3', finite(afterGrowth) ? `${afterGrowth >= 0 ? '+' : ''}${formatMemory(afterGrowth)}` : '—', '再抽選10回による変化');
+        }
+
+        function svgElement(name, attributes = {}) {
+          const node = document.createElementNS(SVG_NS, name);
+          Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, String(value)));
+          return node;
+        }
+
+        function svgText(svg, text, x, y, attributes = {}) {
+          const node = svgElement('text', { x, y, ...attributes });
+          node.textContent = text;
+          svg.append(node);
+          return node;
+        }
+
+        function attachTooltip(node, lines) {
+          node.addEventListener('mouseenter', () => {
+            elements.tooltip.textContent = lines.join('\n');
+            elements.tooltip.style.display = 'block';
+          });
+          node.addEventListener('mousemove', (event) => {
+            elements.tooltip.style.left = `${event.clientX + 14}px`;
+            elements.tooltip.style.top = `${event.clientY + 14}px`;
+          });
+          node.addEventListener('mouseleave', () => {
+            elements.tooltip.style.display = 'none';
+          });
+        }
+
+        function prepareChart(svg, maxValue, yLabel) {
+          const width = 1000;
+          const height = 360;
+          const margin = { left: 72, right: 24, top: 38, bottom: 52 };
+          svg.replaceChildren();
+          svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+          const innerWidth = width - margin.left - margin.right;
+          const innerHeight = height - margin.top - margin.bottom;
+          const safeMax = maxValue > 0 ? maxValue * 1.12 : 1;
+          for (let tick = 0; tick <= 4; tick += 1) {
+            const value = (safeMax * tick) / 4;
+            const y = margin.top + innerHeight - (innerHeight * tick) / 4;
+            svg.append(svgElement('line', { x1: margin.left, y1: y, x2: width - margin.right, y2: y, class: 'grid' }));
+            svgText(svg, formatNumber(value / unitFactor(), state.unit === 'GB' ? 2 : 0), margin.left - 10, y + 4, { 'text-anchor': 'end' });
+          }
+          svg.append(svgElement('line', { x1: margin.left, y1: margin.top, x2: margin.left, y2: height - margin.bottom, class: 'axis' }));
+          svg.append(svgElement('line', { x1: margin.left, y1: height - margin.bottom, x2: width - margin.right, y2: height - margin.bottom, class: 'axis' }));
+          svgText(svg, `${yLabel} (${state.unit})`, margin.left, 20, { 'font-weight': '700' });
+          return { width, height, margin, innerWidth, innerHeight, safeMax, y: (value) => margin.top + innerHeight - (value / safeMax) * innerHeight };
+        }
+
+        function renderComparisonChart() {
+          const svg = byId('comparisonChart');
+          const series = ['before', 'after'].map((phase) => ({
+            phase,
+            color: PHASE_COLORS[phase],
+            values: STAGES.map((stage) => groupSummary(phase, stage, state.metric)),
+          }));
+          const all = series.flatMap((entry) => entry.values.flatMap((value) => [value.value, value.max])).filter(finite);
+          const chart = prepareChart(svg, all.length ? Math.max(...all) : 0, METRICS[state.metric].label);
+          const groupWidth = chart.innerWidth / STAGES.length;
+          const barWidth = Math.min(58, groupWidth * 0.28);
+          STAGES.forEach((stage, stageIndex) => {
+            const center = chart.margin.left + groupWidth * (stageIndex + 0.5);
+            svgText(svg, stage, center, chart.height - 24, { 'text-anchor': 'middle', 'font-weight': '700' });
+            series.forEach((entry, seriesIndex) => {
+              const summary = entry.values[stageIndex];
+              if (!finite(summary.value)) return;
+              const x = center + (seriesIndex === 0 ? -barWidth - 4 : 4);
+              const y = chart.y(summary.value);
+              const bar = svgElement('rect', { x, y, width: barWidth, height: chart.height - chart.margin.bottom - y, fill: entry.color, rx: 3 });
+              attachTooltip(bar, [
+                `${entry.phase} ${stage}`,
+                `${METRICS[state.metric].label}: ${formatMemory(summary.value)}`,
+                `run範囲: ${formatMemory(summary.min)} ～ ${formatMemory(summary.max)}`,
+                `run数: ${summary.count}`,
+              ]);
+              svg.append(bar);
+              if (finite(summary.min) && finite(summary.max)) {
+                const whiskerX = x + barWidth / 2;
+                svg.append(svgElement('line', { x1: whiskerX, y1: chart.y(summary.max), x2: whiskerX, y2: chart.y(summary.min), stroke: '#263247', 'stroke-width': 1.5 }));
+                svg.append(svgElement('line', { x1: whiskerX - 5, y1: chart.y(summary.max), x2: whiskerX + 5, y2: chart.y(summary.max), stroke: '#263247' }));
+                svg.append(svgElement('line', { x1: whiskerX - 5, y1: chart.y(summary.min), x2: whiskerX + 5, y2: chart.y(summary.min), stroke: '#263247' }));
+              }
+            });
+          });
+          [['before', PHASE_COLORS.before], ['after', PHASE_COLORS.after]].forEach(([label, color], index) => {
+            const x = chart.width - 190 + index * 90;
+            svg.append(svgElement('rect', { x, y: 10, width: 12, height: 12, fill: color }));
+            svgText(svg, label, x + 18, 21);
+          });
+        }
+
+        function renderComparisonTable() {
+          elements.comparisonTableBody.replaceChildren();
+          STAGES.forEach((stage) => {
+            const before = groupSummary('before', stage, state.metric);
+            const after = groupSummary('after', stage, state.metric);
+            const delta = finite(before.value) && finite(after.value) ? after.value - before.value : null;
+            const percent = finite(delta) && before.value !== 0 ? (delta / before.value) * 100 : null;
+            const row = document.createElement('tr');
+            createCell(row, stage);
+            createCell(row, formatMemory(before.value), 'number');
+            createCell(row, finite(before.min) ? `${formatMemory(before.min)} ～ ${formatMemory(before.max)}` : '—', 'number');
+            createCell(row, formatMemory(after.value), 'number');
+            createCell(row, finite(after.min) ? `${formatMemory(after.min)} ～ ${formatMemory(after.max)}` : '—', 'number');
+            const deltaCell = createCell(row, finite(delta) ? `${delta >= 0 ? '+' : ''}${formatMemory(delta)}` : '—', 'number');
+            const percentCell = createCell(row, finite(percent) ? `${percent >= 0 ? '+' : ''}${formatNumber(percent, 1)}%` : '—', 'number');
+            if (finite(delta)) deltaCell.classList.add(delta > 0 ? 'positive' : delta < 0 ? 'negative' : '');
+            if (finite(percent)) percentCell.classList.add(percent > 0 ? 'positive' : percent < 0 ? 'negative' : '');
+            elements.comparisonTableBody.append(row);
+          });
+        }
+
+        function renderProcessChart() {
+          const svg = byId('processChart');
+          const processMetrics = [
+            ['Browser', 'browserWorkingSet'],
+            ['Tab', 'tabWorkingSet'],
+            ['GPU', 'gpuWorkingSet'],
+            ['Utility', 'utilityWorkingSet'],
+          ];
+          const stacks = [];
+          STAGES.forEach((stage) => {
+            ['before', 'after'].forEach((phase) => {
+              stacks.push({ stage, phase, segments: processMetrics.map(([type, metric]) => ({ type, value: groupSummary(phase, stage, metric).value })) });
+            });
+          });
+          const maxTotal = Math.max(0, ...stacks.map((stack) => sum(stack.segments.map((segment) => finite(segment.value) ? segment.value : 0))));
+          const chart = prepareChart(svg, maxTotal, 'プロセス別 working set');
+          const groupWidth = chart.innerWidth / STAGES.length;
+          const barWidth = Math.min(54, groupWidth * 0.26);
+          STAGES.forEach((stage, stageIndex) => {
+            const center = chart.margin.left + groupWidth * (stageIndex + 0.5);
+            svgText(svg, stage, center, chart.height - 24, { 'text-anchor': 'middle', 'font-weight': '700' });
+            ['before', 'after'].forEach((phase, phaseIndex) => {
+              const stack = stacks.find((entry) => entry.stage === stage && entry.phase === phase);
+              const x = center + (phaseIndex === 0 ? -barWidth - 4 : 4);
+              let cumulative = 0;
+              stack.segments.forEach((segment) => {
+                if (!finite(segment.value)) return;
+                const bottom = chart.y(cumulative);
+                cumulative += segment.value;
+                const top = chart.y(cumulative);
+                const rect = svgElement('rect', { x, y: top, width: barWidth, height: bottom - top, fill: PROCESS_COLORS[segment.type] });
+                attachTooltip(rect, [`${phase} ${stage} / ${segment.type}`, formatMemory(segment.value), `合計: ${formatMemory(cumulative)}`]);
+                svg.append(rect);
+              });
+              svgText(svg, phase === 'before' ? 'B' : 'A', x + barWidth / 2, chart.height - chart.margin.bottom + 15, { 'text-anchor': 'middle', fill: PHASE_COLORS[phase] });
+            });
+          });
+          processMetrics.forEach(([type], index) => {
+            const x = chart.width - 500 + index * 112;
+            svg.append(svgElement('rect', { x, y: 10, width: 12, height: 12, fill: PROCESS_COLORS[type] }));
+            svgText(svg, type, x + 18, 21);
+          });
+        }
+
+        function renderHeapChart() {
+          const svg = byId('heapChart');
+          const series = [
+            { label: 'before main', phase: 'before', metric: 'mainHeap', color: '#3567c8' },
+            { label: 'after main', phase: 'after', metric: 'mainHeap', color: '#df7a31' },
+            { label: 'before preview', phase: 'before', metric: 'previewHeap', color: '#63a0ff' },
+            { label: 'after preview', phase: 'after', metric: 'previewHeap', color: '#f4ad73' },
+          ].map((entry) => ({ ...entry, values: STAGES.map((stage) => groupSummary(entry.phase, stage, entry.metric).value) }));
+          const all = series.flatMap((entry) => entry.values).filter(finite);
+          const chart = prepareChart(svg, all.length ? Math.max(...all) : 0, 'JSヒープ');
+          const x = (index) => chart.margin.left + chart.innerWidth * ((index + 0.5) / STAGES.length);
+          STAGES.forEach((stage, index) => svgText(svg, stage, x(index), chart.height - 24, { 'text-anchor': 'middle', 'font-weight': '700' }));
+          series.forEach((entry, seriesIndex) => {
+            let previous = null;
+            entry.values.forEach((value, index) => {
+              if (!finite(value)) {
+                previous = null;
+                return;
+              }
+              const point = { x: x(index), y: chart.y(value) };
+              if (previous) svg.append(svgElement('line', { x1: previous.x, y1: previous.y, x2: point.x, y2: point.y, stroke: entry.color, 'stroke-width': 2.5 }));
+              const circle = svgElement('circle', { cx: point.x, cy: point.y, r: 5, fill: entry.color, stroke: '#fff', 'stroke-width': 1.5 });
+              attachTooltip(circle, [`${entry.label} ${STAGES[index]}`, formatMemory(value)]);
+              svg.append(circle);
+              previous = point;
+            });
+            const legendX = chart.width - 600 + seriesIndex * 145;
+            svg.append(svgElement('line', { x1: legendX, y1: 16, x2: legendX + 18, y2: 16, stroke: entry.color, 'stroke-width': 3 }));
+            svgText(svg, entry.label, legendX + 24, 21);
+          });
+        }
+
+        function renderTimelineChart() {
+          const svg = byId('timelineChart');
+          const dataset = state.datasets.find((entry) => entry.id === state.timelineId && entry.included);
+          if (!dataset) {
+            prepareChart(svg, 0, METRICS[state.metric].label);
+            return;
+          }
+          const startTime = Date.parse(dataset.start.timestamp);
+          const points = dataset.samples
+            .map((sample) => ({ seconds: (Date.parse(sample.timestamp) - startTime) / 1000, value: sampleMetric(sample, state.metric) }))
+            .filter((point) => finite(point.seconds) && finite(point.value));
+          const maxValue = points.length ? Math.max(...points.map((point) => point.value)) : 0;
+          const chart = prepareChart(svg, maxValue, `${METRICS[state.metric].label} — ${phaseRunLabel(dataset)}`);
+          const maxSeconds = points.length ? Math.max(...points.map((point) => point.seconds)) : 1;
+          const x = (seconds) => chart.margin.left + (seconds / maxSeconds) * chart.innerWidth;
+          for (let tick = 0; tick <= 5; tick += 1) {
+            const seconds = (maxSeconds * tick) / 5;
+            svgText(svg, `${Math.round(seconds)}s`, x(seconds), chart.height - 24, { 'text-anchor': 'middle' });
+          }
+          let previous = null;
+          points.forEach((point) => {
+            const current = { x: x(point.seconds), y: chart.y(point.value) };
+            if (previous) svg.append(svgElement('line', { x1: previous.x, y1: previous.y, x2: current.x, y2: current.y, stroke: PHASE_COLORS[dataset.phase] ?? '#555', 'stroke-width': 1.8 }));
+            previous = current;
+          });
+          points.forEach((point) => {
+            const hitArea = svgElement('circle', {
+              cx: x(point.seconds),
+              cy: chart.y(point.value),
+              r: 5,
+              fill: 'transparent',
+              'pointer-events': 'all',
+            });
+            attachTooltip(hitArea, [
+              `${phaseRunLabel(dataset)} / ${Math.round(point.seconds)}秒`,
+              `${METRICS[state.metric].label}: ${formatMemory(point.value)}`,
+            ]);
+            svg.append(hitArea);
+          });
+          dataset.marks.forEach((mark) => {
+            const seconds = (Date.parse(mark.timestamp) - startTime) / 1000;
+            const markX = x(seconds);
+            svg.append(svgElement('line', { x1: markX, y1: chart.margin.top, x2: markX, y2: chart.height - chart.margin.bottom, class: 'mark-line' }));
+            svgText(svg, mark.label, markX + 4, chart.margin.top + 14, { 'font-weight': '700' });
+          });
+        }
+
+        function renderResults() {
+          const selected = selectedDatasets();
+          const hasResults = selected.length > 0;
+          elements.resultsArea.classList.toggle('hidden', !hasResults);
+          elements.emptyState.classList.toggle('hidden', hasResults);
+          renderControls();
+          if (!hasResults) return;
+          renderSummaryCards();
+          renderComparisonChart();
+          renderComparisonTable();
+          renderProcessChart();
+          renderHeapChart();
+          renderTimelineChart();
+          const warnings = crossFileWarnings();
+          elements.loadMessage.textContent = warnings.length ? warnings.join(' / ') : '選択中のファイル構成に問題はありません。';
+        }
+
+        function renderAll() {
+          const hasFiles = state.datasets.length > 0;
+          elements.filePanel.classList.toggle('hidden', !hasFiles);
+          elements.controlsPanel.classList.toggle('hidden', !hasFiles);
+          elements.clearButton.disabled = !hasFiles;
+          renderFileTable();
+          renderResults();
+        }
+
+        function comparisonRows(metricKey = state.metric) {
+          return STAGES.map((stage) => {
+            const before = groupSummary('before', stage, metricKey);
+            const after = groupSummary('after', stage, metricKey);
+            const delta = finite(before.value) && finite(after.value) ? after.value - before.value : null;
+            return {
+              stage,
+              before,
+              after,
+              deltaMb: delta,
+              percent: finite(delta) && before.value !== 0 ? (delta / before.value) * 100 : null,
+            };
+          });
+        }
+
+        function exportSummary() {
+          const payload = {
+            schemaVersion: 1,
+            generatedAt: new Date().toISOString(),
+            settings: {
+              withinStatistic: state.within,
+              runStatistic: state.group,
+              s0Seconds: state.s0Seconds,
+              s1ToS4Seconds: state.otherSeconds,
+              valuesUnit: 'MB',
+            },
+            datasets: selectedDatasets().map((dataset) => ({
+              file: dataset.name,
+              phase: dataset.phase,
+              run: dataset.run,
+              commit: dataset.commit,
+              electronVersion: dataset.electronVersion,
+              chromeVersion: dataset.chromeVersion,
+              nodeVersion: dataset.nodeVersion,
+              warnings: dataset.warnings,
+            })),
+            metrics: Object.fromEntries(Object.keys(METRICS).map((metric) => [metric, comparisonRows(metric)])),
+          };
+          downloadBlob(JSON.stringify(payload, null, 2), 'memory-comparison-summary.json', 'application/json');
+        }
+
+        function exportCsv() {
+          const header = ['metric', 'stage', 'before', 'before_min', 'before_max', 'after', 'after_min', 'after_max', 'delta_mb', 'percent'];
+          const rows = comparisonRows().map((row) => [
+            METRICS[state.metric].label,
+            row.stage,
+            row.before.value,
+            row.before.min,
+            row.before.max,
+            row.after.value,
+            row.after.min,
+            row.after.max,
+            row.deltaMb,
+            row.percent,
+          ]);
+          const csv = [header, ...rows].map((row) => row.map(escapeCsv).join(',')).join('\r\n');
+          downloadBlob(`\ufeff${csv}`, 'memory-comparison.csv', 'text/csv;charset=utf-8');
+        }
+
+        function downloadBlob(content, name, type) {
+          const url = URL.createObjectURL(new Blob([content], { type }));
+          const anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = name;
+          document.body.append(anchor);
+          anchor.click();
+          anchor.remove();
+          URL.revokeObjectURL(url);
+        }
+
+        Object.entries(METRICS).forEach(([value, definition]) => {
+          const option = document.createElement('option');
+          option.value = value;
+          option.textContent = definition.label;
+          elements.metricSelect.append(option);
+        });
+
+        elements.fileInput.addEventListener('change', async () => {
+          await loadFiles(elements.fileInput.files);
+          elements.fileInput.value = '';
+        });
+        ['dragenter', 'dragover'].forEach((eventName) => elements.dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          elements.dropZone.classList.add('dragging');
+        }));
+        ['dragleave', 'drop'].forEach((eventName) => elements.dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          elements.dropZone.classList.remove('dragging');
+        }));
+        elements.dropZone.addEventListener('drop', (event) => loadFiles(event.dataTransfer.files));
+        elements.clearButton.addEventListener('click', () => {
+          state.datasets = [];
+          state.timelineId = null;
+          elements.loadMessage.textContent = '';
+          renderAll();
+        });
+        elements.metricSelect.addEventListener('change', () => { state.metric = elements.metricSelect.value; renderResults(); });
+        elements.withinSelect.addEventListener('change', () => { state.within = elements.withinSelect.value; renderResults(); });
+        elements.groupSelect.addEventListener('change', () => { state.group = elements.groupSelect.value; renderResults(); });
+        elements.unitSelect.addEventListener('change', () => { state.unit = elements.unitSelect.value; renderResults(); });
+        elements.s0Seconds.addEventListener('change', () => { state.s0Seconds = Math.max(5, Number(elements.s0Seconds.value) || 30); renderResults(); });
+        elements.otherSeconds.addEventListener('change', () => { state.otherSeconds = Math.max(5, Number(elements.otherSeconds.value) || 60); renderResults(); });
+        elements.timelineSelect.addEventListener('change', () => { state.timelineId = Number(elements.timelineSelect.value); renderTimelineChart(); });
+        byId('exportJsonButton').addEventListener('click', exportSummary);
+        byId('exportCsvButton').addEventListener('click', exportCsv);
+        byId('printButton').addEventListener('click', () => window.print());
+
+        renderAll();
+      })();
+    </script>
+  </body>
+</html>

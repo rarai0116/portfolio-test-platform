@@ -1,0 +1,139 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  /* プリミティブトークン */
+  --color-white: #F5F6F8;
+  --color-gray-200: #EBECEE;
+  --color-gray-300: #D0D3D7;
+  --color-gray-400: #B2B8BD;
+  --color-gray-600: #6B727A;
+  --color-gray-800: #3A3F45;
+
+  --color-demoblue-50: #E8F2FF;
+  --color-demoblue-100: #CDE5FF;
+  --color-demoblue-200: #95CCFF;
+  --color-demoblue-300: #6DB1EC;
+  --color-demoblue-400: #5196CF;
+  --color-demoblue-500: #337CB4;
+  --color-demoblue: #006298;
+  --color-demoblue-700: #004A75;
+  --color-demoblue-800: #003352;
+  --color-demoblue-900: #002842;
+
+  --color-green-50: #DFF7DD;
+  --color-green-100: #C8EEB9;
+  --color-green-200: #90D97C;
+  --color-green-300: #74BC63;
+  --color-green-400: #5BA14B;
+  --color-green-500: #418634;
+  --color-green-600: #276B1C;
+  --color-green-700: #085303;
+  --color-green-800: #013A00;
+  --color-green-900: #012D00;
+
+  --color-red-50: #FFEDEB;
+  --color-red-100: #FFDAD7;
+  --color-red-200: #FFB3AF;
+  --color-red-300: #FF8985;
+  --color-red-400: #EB6564;
+  --color-red-500: #CA4D4C;
+  --color-red-600: #A83436;
+  --color-red-700: #881C21;
+  --color-red-800: #68000E;
+  --color-red-900: #540009;
+
+  --color-yellow-50: #FFF7D0;
+  --color-yellow-100: #FDF1B8;
+  --color-yellow-200: #FFEB94;
+  --color-yellow-300: #FFDA4D;
+  --color-yellow-400: #F0C000;
+  --color-yellow-500: #D1A512;
+  --color-yellow-600: #B28C0F;
+  --color-yellow-700: #91741E;
+  --color-yellow-800: #725C19;
+  --color-yellow-900: #55451B;
+
+  /* セマンティックトークン: アプリ共通の基本トークン */
+  --color-background: var(--color-white);
+  --color-foreground: var(--color-gray-800);
+  --color-primary: var(--color-demoblue);
+  --color-primary-foreground: var(--color-white);
+  --color-primary-hover: var(--color-demoblue-700);
+  --color-primary-active: var(--color-demoblue-800);
+  --color-secondary: var(--color-gray-200);
+  --color-secondary-foreground: var(--color-gray-800);
+  --color-secondary-hover: var(--color-gray-300);
+  --color-secondary-active: var(--color-gray-400);
+  --color-muted: var(--color-gray-400);
+  --color-muted-foreground: var(--color-gray-600);
+  --color-accent: var(--color-gray-800);
+  --color-accent-foreground: var(--color-white);
+  --color-border: var(--color-gray-300);
+  --color-icon: var(--color-gray-600);
+  --color-icon-hover: var(--color-gray-400);
+  --color-success-bg: var(--color-green-100);
+  --color-success-text: var(--color-green-500);
+   --color-success-icon: var(--color-green-300);
+  --color-error-bg: var(--color-red-100);
+  --color-error-text: var(--color-red-400);
+  --color-error-border: var(--color-red-200);
+  --color-error-icon: var(--color-red-400);
+ --color-warning-bg: color-mix(in srgb, var(--color-yellow-200) 50%, transparent);
+  --color-warning-text: var(--color-yellow-800);
+  --color-warning-border: var(--color-yellow-200);
+  --color-warning-icon: var(--color-yellow-300);
+  /* セマンティックトークン: shadcnコンポーネントで使用するトークン */
+  --color-card: var(--color-white);
+  --color-card-foreground: var(--color-gray-800);
+  --color-popover: var(--color-white);
+  --color-popover-foreground: var(--color-gray-800);
+  --color-input: var(--color-white);
+  --color-ring: var(--color-gray-400);
+  --color-destructive: var(--color-red-400);
+  --color-destructive-foreground: var(--color-white);
+  --color-sidebar: var(--color-white);
+  --color-sidebar-foreground: var(--color-gray-800);
+  --color-sidebar-primary: var(--color-demoblue);
+  --color-sidebar-primary-foreground: var(--color-gray-800);
+  --color-sidebar-accent: var(--color-gray-800);
+  --color-sidebar-accent-foreground: var(--color-white);
+  --color-sidebar-border: var(--color-gray-300);
+  --color-sidebar-ring: var(--color-gray-300);
+
+  /*  シャドウ  */
+  --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-xs:  0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm:  0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --shadow:     0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --shadow-md:  0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10);
+  --shadow-lg:  0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
+  --shadow-xl:  0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10);
+  --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+
+  /*  タイポグラフィ  */
+  --text-xs: 0.75rem;   
+  --text-xs-line-height: 1.5;
+  --text-sm: 0.875rem;  
+  --text-sm-line-height: 1.5;
+  --text-base: 1rem;    
+  --text-base-line-height: 1.5;
+  --text-lg: 1.125rem;  
+  --text-lg-line-height: 1.5;
+  --text-xl: 1.25rem;   
+  --text-xl-line-height: 1.5;
+  --text-2xl: 1.5rem;   
+  --text-2xl-line-height: 1.5;
+  --text-3xl: 1.875rem; 
+  --text-3xl-line-height: 1.5;
+  --text-4xl: 2.25rem;  --text-4xl-line-height: 1.5;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

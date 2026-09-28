@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api": {
+      "origin": "https://asia-northeast1-demo-workbook-app.cloudfunctions.net/"
+    }
+  }
+}

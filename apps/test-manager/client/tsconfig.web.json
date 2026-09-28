@@ -1,0 +1,43 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
+  "include": [
+    "src/test/**/*",
+    "src/app/renderer/**/*",
+    "src/app/renderer/**/*.tsx",
+    "src/app/renderer/components/parts/manualCheckPill.tsx",
+    "src/app/renderer/components/parts/autoCheckPill.tsx",
+    "src/app/preload/*.d.ts",
+    "src/app/renderer/index.html",
+    "src/app/mocks",
+    "src/app/shared/**/*",
+    "src/app/renderer/types/*.d.ts"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "target": "es2024",
+    "lib": ["ES2024", "DOM"],
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": true,
+    "types": ["vitest", "@testing-library/jest-dom"],
+    "outDir": "./dist",
+    "paths": {
+      "@hooks/*": ["./src/app/renderer/components/hooks/*"],
+      "@parts/*": ["./src/app/renderer/components/parts/*"],
+      "@templates/*": ["./src/app/renderer/components/templates/*"],
+      "@ui/*": ["./src/app/renderer/components/ui/*"],
+      "@api/*": ["./src/app/renderer/api/*"],
+      "@assets/*": ["./src/app/renderer/assets/*"],
+      "@styles/*": ["./src/app/renderer/styles/*"],
+      "@components/*": ["./src/app/renderer/components/*"], 
+      "@stores/*": ["./src/app/renderer/stores/*"],
+      "@types/*": ["./src/app/renderer/types/*"],     
+      "@views/*": ["./src/app/renderer/views/*"],
+      "@renderer/*": ["./src/app/renderer/*"],    
+      "@shared/*": ["./src/app/shared/*"],
+    }
+  }
+}

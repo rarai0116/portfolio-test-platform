@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "owner": "studiocorobo",
+    "slug": "demo-workbook-app",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "enabled": false,
+      "checkAutomatically": "ON_LOAD"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "LSApplicationQueriesSchemes": [
+          "itms-beta",
+          "market",
+          "itms-beta",
+          "market"
+        ],
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "00000000-0000-4000-8000-000000000000"
+      }
+    }
+  }
+}

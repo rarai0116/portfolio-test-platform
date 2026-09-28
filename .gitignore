@@ -1,0 +1,36 @@
+node_modules
+# 移植パイプライン設定（実値）。/.env.example は追跡する。
+/.env
+.DS_Store
+firestore-debug.log
+dist
+.pnpm-store
+apps/qaa/.env
+
+apps/qaa/.env.prod
+
+apps/qaa/.env.test
+
+apps/qaa/dist-cjs/
+
+tools/portfolio-scan/assets-manifest.json
+
+tools/asset-replacement/logs/
+
+tools/markdown-replacement/logs/
+tools/portfolio-migrate/logs/
+
+/.tmp
+
+# ネイティブビルドの成果物（APK）の固定保存先。移植元レポジトリの
+# docs/wsl2-android-build.md が定める「固定保存先ルール」に合わせる。
+# 実機/エミュレータ検証のため Windows 側から参照する必要があり、リポジトリ内に
+# 置くが追跡はしない（1 ファイルを上書きする運用）。
+/build-artifacts/
+
+# デモデータ本体は GitHub Release のアセットで配布する（tools/demo-data/manifest.json）。
+# 誤って追跡へ戻さないための保険。
+tools/demo-data/**/_data/
+
+# 取り込みの実行状態。環境ごとに変わるので追跡しない。
+tools/manuscript-import/.last-import.json

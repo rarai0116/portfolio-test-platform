@@ -1,0 +1,17 @@
+{
+  "name": "workbook-convert",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TestManager の問題データを WorkbookApp の形式へ変換する",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "convert": "node ./index.cjs",
+    "test": "node --test ./convert.test.cjs"
+  },
+  "dependencies": {
+    "katex": "0.16.44"
+  }
+}

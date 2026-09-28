@@ -1,0 +1,71 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+  function isAuthenticated(){
+  		return request.auth != null;
+  }
+  function isUserAuthenticated(userId) {
+      return isAuthenticated() && userId == request.auth.uid
+  }
+  // 接頭辞だけでは、同じ接頭辞を持つ外部ドメインのアカウントも講師として通ってしまう。
+  // storage.rules / database.rules.json と同じドメイン判定を併せて行う。
+  function isAuthenticatedTeacher(){
+  		return isAuthenticated()
+  			&& request.auth.token.email.matches('.*@demoschool[.]ac[.]jp$')
+  			&& request.auth.token.email.matches('^t-.*');
+  }
+    // 認証前に読む必要がある。アプリの起動時に版と稼働モードを確認するため。
+    // 対象は下の 4 文書に限定し、書き込みは全面拒否する。
+    match /metadata/{document} {
+      allow read:if document == 'appVersion'
+        || document == 'firstGradeLastUpdate'
+        || document == 'secondGradeLastUpdate'
+        || document == 'mode';
+      allow write:if false;
+    }
+    match /users/{userId}/{document=**}{    
+    	allow read:if isUserAuthenticated(userId);
+      allow write:if false;
+    }
+    // ユーザーコレクションのsharedサブコレクションは本人の読み書きを許可する
+    match /users/{userId}/shared/{document=**}{
+    	allow read:if isUserAuthenticated(userId);
+      allow write:if  isUserAuthenticated(userId);
+    }
+    // ユーザーコレクションのtasksサブコレクションは本人の読み書きと講師の読み込みを許可
+    match /users/{userId}/tasks/{document=**}{
+    	allow read:if isUserAuthenticated(userId) || isAuthenticatedTeacher();
+      allow write:if  isUserAuthenticated(userId);
+    }    
+    match /users/_log/changedDailyLog/{logId}{
+      allow get:if isUserAuthenticated(logId.split('_')[2]);
+      allow list:if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create:if isUserAuthenticated(logId.split('_')[2])
+        && request.resource.data.uid == request.auth.uid;
+      allow update:if isUserAuthenticated(logId.split('_')[2])
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == request.auth.uid;
+      // 管理権限以外からのdeleteを不許可
+      allow delete:if false;
+    }
+    match /userTestDataStore/{logId}{
+    	allow read:if isUserAuthenticated(logId.split('_')[1]);
+    	allow create:if isUserAuthenticated(logId.split('_')[1]);
+      allow update,delete:if isUserAuthenticated(logId.split('_')[1]) && resource.data.isFinished != true;
+    }
+    
+    // 認証前に読む必要がある。サインイン前に稼働状態を表示するため。
+    // 単一文書で、書き込みは全面拒否する。
+    match /app/status{
+      allow read:if true;
+      allow write:if false;
+    }
+
+    // 上のいずれにも当たらないパスは拒否する。Firestore の既定も拒否だが、
+    // 意図して閉じていることを明示する（test-manager 側と揃える）。
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

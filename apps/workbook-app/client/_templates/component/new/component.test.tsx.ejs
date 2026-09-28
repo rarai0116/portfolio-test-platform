@@ -1,0 +1,23 @@
+---
+to: __Tests__/<%= h.changeCase.camelCase(category) %>/<%= h.changeCase.camelCase(name) %>.test.tsx
+---
+import renderer from 'react-test-renderer';
+import <%= h.changeCase.pascalCase(name) %> from '../../components/<%= h.changeCase.camelCase(category) %>/<%= h.changeCase.camelCase(name) %>';
+
+describe('<<%= h.changeCase.pascalCase(name) %> />', () => {
+	/** ここに、テスト内容を書く
+	 * 例:)Hogeコンポーネントが子を1つもっているかテストしたい
+	 * 	it('has 1 child', () => {
+	 *		const tree: any = renderer.create(<Hoge />).toJSON();
+	 *		expect(tree?.children?.length).toBe(1);
+	 *	});
+	 *  逆引き使用例
+	 * 	https://qiita.com/chimame/items/e97883fd46b67529d59f
+	 * **/
+});
+
+/** スナップショットテスト */
+test('<<%= h.changeCase.pascalCase(name) %> /> snapshot', () => {
+	const tree = renderer.create(<<%= h.changeCase.pascalCase(name) %> />).toJSON();
+	expect(tree).toMatchSnapshot();
+});

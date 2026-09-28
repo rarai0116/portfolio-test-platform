@@ -1,0 +1,293 @@
+@import "./base.css";
+@import 'quill/dist/quill.snow.css';
+/*@import 'quill-table-better/dist/quill-table-better.css';*/
+@import 'react-data-grid/lib/styles.css';
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  font-family:  'NotoSansJP_400Regular', 'Roboto', sans-serif; 
+  scrollbar-color: var(--color-gray-400) var(--color-white);
+}
+
+#root{
+    height: 100%;
+}
+
+
+/* --- Google ログインボタン --- */
+.gsi-material-button {
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: WHITE;
+  background-image: none;
+  border: 1px solid #747775;
+  -webkit-border-radius: 20px;
+  border-radius: 20px;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  color: #1f1f1f;
+  cursor: pointer;
+  font-family: 'Roboto', arial, sans-serif;
+  font-size: 14px;
+  height: 40px;
+  letter-spacing: 0.25px;
+  outline: none;
+  overflow: hidden;
+  padding: 0 12px;
+  position: relative;
+  text-align: center;
+  -webkit-transition: background-color .218s, border-color .218s, box-shadow .218s;
+  transition: background-color .218s, border-color .218s, box-shadow .218s;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: auto;
+  max-width: 400px;
+  min-width: min-content;
+}
+
+.gsi-material-button .gsi-material-button-icon {
+  height: 20px;
+  margin-right: 12px;
+  min-width: 20px;
+  width: 20px;
+}
+
+.gsi-material-button .gsi-material-button-content-wrapper {
+  -webkit-align-items: center;
+  align-items: center;
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  height: 100%;
+  justify-content: space-between;
+  position: relative;
+  width: 100%;
+}
+
+.gsi-material-button .gsi-material-button-contents {
+  -webkit-flex-grow: 1;
+  flex-grow: 1;
+  font-family: 'Roboto', arial, sans-serif;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: top;
+}
+
+.gsi-material-button .gsi-material-button-state {
+  -webkit-transition: opacity .218s;
+  transition: opacity .218s;
+  bottom: 0;
+  left: 0;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.gsi-material-button:disabled {
+  cursor: default;
+  background-color: #ffffff61;
+  border-color: #1f1f1f1f;
+}
+
+.gsi-material-button:disabled .gsi-material-button-contents {
+  opacity: 38%;
+}
+
+.gsi-material-button:disabled .gsi-material-button-icon {
+  opacity: 38%;
+}
+
+.gsi-material-button:not(:disabled):active .gsi-material-button-state, 
+.gsi-material-button:not(:disabled):focus .gsi-material-button-state {
+  background-color: #303030;
+  opacity: 12%;
+}
+
+.gsi-material-button:not(:disabled):hover {
+  -webkit-box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+}
+
+.gsi-material-button:not(:disabled):hover .gsi-material-button-state {
+  background-color: #303030;
+  opacity: 8%;
+}
+
+/* --- Dockview --- */
+.dockview-theme-light-spaced{
+    background-color: var(--color-gray-200) !important;
+    --dv-tab-margin: 0 !important;
+    --dv-border-radius: 0px !important;
+    --dv-active-sash-color: var(--color-demoblue) !important;;
+    --dv-drag-over-border: 2px solid var(--color-demoblue) !important;;
+}
+
+.dv-dockview {
+    background-color: var(--color-gray-200) !important;
+}
+
+.dv-view{
+    border-radius: 6px 6px  !important;
+    border: var(--color-secondary-hover) 1px solid !important;
+
+}
+
+.dv-tabs-and-actions-container{
+    background-color: var(--color-gray-600) !important;
+    height: 36px !important;
+}
+
+.dv-scrollable{
+    width: 100% !important;
+}
+
+.dv-tab {
+    flex-grow: 1 !important;
+    border-radius: 6px 6px 0 0 !important;
+    color: var(--color-white) !important;
+    padding: 0rem 1rem !important;
+}
+
+.dv-active-tab{
+    background-color: var(--color-gray-800) !important;
+}
+
+.dv-groupview.dv-active-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-inactive-tab {
+    background-color: var(--color-gray-600) !important;
+}
+
+.dv-groupview.dv-inactive-group > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-inactive-tab {
+    background-color: var(--color-gray-600) !important;
+}
+
+.dv-svg{
+  height: 16px !important;
+  width: 16px !important;
+}
+.dv-svg:hover path{
+  fill: var(--color-gray-200) !important;
+}
+
+
+/* --- SVG Icon --- */
+.svg-icon-svg:hover .svg-icon-path{
+  fill: var(--hover-fill);
+}
+
+
+/* --- react-data-grid ---*/
+ .rdg {
+    block-size: 100%;
+    border: none;
+  }
+
+ .d8rwc9w7-0-0-beta-58 {
+  @layer rdg.HeaderCell {
+    outline: none !important;
+  }
+}
+
+/*セル共通*/
+.rdg-cell {
+  @layer rdg.Cell {
+    border-top: 1px solid var(--color-gray-300);
+    border-left: 1px solid var(--color-gray-300);
+    border-right: none;
+    border-bottom:none;
+    font-weight: 400;
+    text-align: center;
+    box-shadow: none !important;
+
+    &[aria-selected='true'] {
+      outline:none;
+    }
+  }
+}
+
+/* ヘッダー行 */
+.rdg-header-row{
+  @layer rdg.HeaderRow {
+   background-color: var(--color-secondary);
+   color: var(--color-foreground);
+   border:var(--color-gray-300) solid 1px;
+  }
+}
+
+/* ヘッダーセル */
+[role="columnheader"] {
+  padding: 0;
+  border-bottom: var(--color-gray-300) solid 2px;
+}
+
+.filter-cell{
+   padding-inline: 0;
+}
+
+.filter-cell option{
+  color: var(--color-foreground);
+}
+
+/* ドラッグ中のカラム */
+.rdg-cell-dragging{
+    cursor: grab;
+    background-color:var(--color-secondary)
+
+}
+
+/* ドロップターゲットのカラム */
+.rdg-cell-drag-over{
+    cursor: grab;
+    background-color:var(--color-secondary)
+
+}
+
+/* rdg-resize-handleがセルの右にあるため、カーソルが中央に来るよう位置を調整 */
+.rdg-resize-handle{
+  cursor:url(../../assets/resize-handle.svg) 8 12, col-resize;
+}
+
+.custom-drag-over {
+  background-color: var(--color-secondary-hover);
+}
+
+/* 固定した列の境界線 */
+.custom-frozen-header-border {
+  border-right: 2px solid var(--color-gray-300);
+}
+
+.custom-frozen-border {
+  border-right: 2px solid var(--color-gray-300);
+}
+
+/* ボディ行 */
+.rdg-row{
+  @layer rdg.Root {
+    color:var(--color-foreground);
+    background-color: var(--color-white);
+  }
+  &:hover {
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
+  }
+}
+.rdg-row:has(.rdg-cell[aria-selected='true']) {
+  background-color: var(--color-demoblue-50);
+}
+
+.rdg-cell.cell-text-left {
+  text-align: left;
+  padding-left: 16px; 
+}

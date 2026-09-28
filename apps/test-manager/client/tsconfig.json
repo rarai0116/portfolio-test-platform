@@ -1,0 +1,26 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.web.json"
+    }
+  ],
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
+    "noEmit": true,
+    "target": "es2024",
+    "lib": ["ES2024", "DOM"],
+    "types": ["vitest", "@testing-library/jest-dom"],
+    "paths": {
+      "@resources/*": ["./resources/*"],
+      "*": ["./src/*"],
+      "@renderer/*": ["./src/app/renderer/*"], 
+    }
+  },
+  "exclude": ["node_modules"]
+}

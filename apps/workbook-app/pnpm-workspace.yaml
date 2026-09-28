@@ -1,0 +1,35 @@
+packages:
+  - client
+  - backend
+# apps/backend/functions は workspace に含めない。
+# Firebase Cloud Functions は emulator/deploy が「functions 直下の node_modules に
+# firebase-functions の実体」を要求するため、workspace から分離して単体 pnpm で管理する:
+#   pnpm --dir apps/backend/functions install --ignore-workspace   (root の `functions:install` スクリプト)
+
+# Expo SDK 57 のモノレポ対応を利用し、各 workspace の依存関係を分離する。
+# Android 開発ビルドは WSL2/Linux 上で生成する。
+nodeLinker: isolated
+autoInstallPeers: true
+strictPeerDependencies: false
+resolvePeersFromWorkspaceRoot: false
+enablePrePostScripts: true
+
+# 従来 apps/client/package.json の pnpm フィールドにあったものを workspace ルートへ集約。
+overrides:
+  '@react-native/babel-preset': 0.86.3
+  '@react-native/codegen': 0.86.3
+  # EAS CLI pins vulnerable transitive versions; keep its existing major API.
+  'eas-cli>minimatch': 5.1.9
+  'eas-cli>nanoid': 3.3.19
+  'eas-cli>tar': 7.5.21
+
+onlyBuiltDependencies:
+  - '@firebase/util'
+  - dtrace-provider
+  - esbuild
+  - protobufjs
+  - re2
+  - unrs-resolver
+
+patchedDependencies:
+  react-native-reanimated-skeleton@1.6.0: patches/react-native-reanimated-skeleton@1.6.0.patch

@@ -1,0 +1,180 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() { return request.auth != null && request.auth.uid != null; }
+    function isAllowedDomain() {
+      return isSignedIn()
+        && request.auth.token.email is string
+        && (
+          request.auth.token.email.matches('.*@demoschool\\.jp$') ||
+          request.auth.token.email.matches('.*@demoschool\\.ac\\.jp$')
+        );
+    }
+    function canRead() { return isAllowedDomain() && request.auth.token.atpAllowRead == true; }
+    function canWrite() { return isAllowedDomain() && request.auth.token.atpAllowWrite == true; }
+
+    function isNonEmptyString(v) { return v is string && v.size() > 0; }
+    function isString(v) { return v is string; }
+    function isNumber(v) { return v is number; }
+    function isBool(v) { return v is bool; }
+    function isTimestamp(v) { return v is timestamp; }
+    function isSupportedCacheIndexCollectionPath(v) {
+      return v is string
+        && (
+          v == 'firstGrade' ||
+          v == 'secondGrade' ||
+          v == 'storageList/firstGrade/images' ||
+          v == 'storageList/secondGrade/images'
+        );
+    }
+
+    function cacheIndexCollectionDocPrefix(collectionPath) {
+      return collectionPath == 'firstGrade' ? 'firstGrade' :
+        collectionPath == 'secondGrade' ? 'secondGrade' :
+        collectionPath == 'storageList/firstGrade/images' ? 'storageList_firstGrade_images' :
+        collectionPath == 'storageList/secondGrade/images' ? 'storageList_secondGrade_images' :
+        '';
+    }
+
+    function buildCacheIndexDocId(collectionPath, shard) {
+      return cacheIndexCollectionDocPrefix(collectionPath) + '_' + shard;
+    }
+    function isCacheIndexDoc(d, docId) {
+      return d is map
+        && ('collectionPath' in d)
+        && isSupportedCacheIndexCollectionPath(d.collectionPath)
+        && ('shard' in d)
+        && isString(d.shard)
+        && d.shard.matches('^[0-9a-f]{2}$')
+        && buildCacheIndexDocId(d.collectionPath, d.shard) == docId
+        && (!('updatedAt' in d) || isTimestamp(d.updatedAt))
+        && (!('items' in d) || d.items is map);
+    }
+    function isTestData(d) {
+      return d is map
+        && isBool(d.active)
+        && isString(d.answerNumber)
+        && isNumber(d.grade)
+        && isString(d.subject)
+        && isNumber(d.no)
+        && isString(d.text)
+        && isString(d.testNo)
+        && isString(d.status)
+        && (!('year' in d) || isString(d.year))
+        && (!('bigCategoryTag' in d) || isString(d.bigCategoryTag))
+        && (!('smallCategoryTag' in d) || isString(d.smallCategoryTag))
+        && (!('difficult' in d) || isString(d.difficult))
+        && (!('answerText' in d) || isString(d.answerText))
+        && (!('answer' in d) || isString(d.answer))
+        && (!('isConvertibleQaa' in d) || isBool(d.isConvertibleQaa))
+        && (!('isShuffleable' in d) || isBool(d.isShuffleable))
+        && (!('isNegativeAnswer' in d) || isBool(d.isNegativeAnswer))
+        && (!('isWeakPoint' in d) || isBool(d.isWeakPoint))
+        && (!('isAnswered' in d) || isBool(d.isAnswered));
+    }
+
+    // 一級＝0、二級＝1
+    function isTestDataForFirstGrade(d) { return isTestData(d) && d.grade == 0; }
+    function isTestDataForSecondGrade(d){ return isTestData(d) && d.grade == 1; }
+
+    // d.grade が以下のいずれでも許容:
+    // - 'firstGrade' | 'secondGrade'
+    // - 数値 1 | 2
+    // - 日本語 '1級' | '2級'
+    function gradeMatchesPath(d, gradeId) {
+      return
+        // 文字列の GradeId そのもの
+        ((d.grade is string) && (d.grade in ['firstGrade', 'secondGrade']) && d.grade == gradeId)
+        ||
+        // 数値 1/2
+        ((d.grade is number) && (
+          (d.grade == 1 && gradeId == 'firstGrade') ||
+          (d.grade == 2 && gradeId == 'secondGrade')
+        ))
+        ||
+        // 日本語 '1級' / '2級'
+        ((d.grade is string) && (
+          (d.grade == '1級' && gradeId == 'firstGrade') ||
+          (d.grade == '2級' && gradeId == 'secondGrade')
+        ));
+    }
+
+    // AssetData（create 用の最低限）
+    // 変更: gradeId と整合チェックをここで行う
+    function isAssetDataCreate(d, gradeId) {
+      return d is map
+        && isNonEmptyString(d.key)
+        && gradeMatchesPath(d, gradeId);
+        // 必要なら型を追加:
+        // && (!('updatedAt' in d) || (d.updatedAt is timestamp))
+        // && (!('contentType' in d) || isString(d.contentType))
+        // && (!('size' in d) || (isNumber(d.size) && d.size >= 0))
+    }
+
+    // AssetData の update ポリシー: grade/key は不変。パスとの整合性も維持。
+    // 変更: 既存データ(resource.data)と更新データの両方で整合を確認
+    function isAssetDataUpdate(d, gradeId) {
+      return d is map
+        && gradeMatchesPath(d, gradeId)
+        && gradeMatchesPath(resource.data, gradeId) // 既存もパスと整合
+        && d.key is string
+        && resource.data.key is string
+        && d.key == resource.data.key;
+        // 必要なら:
+        // && (!('updatedAt' in d) || (d.updatedAt is timestamp))
+    }
+
+    match /firstGrade/{doc} {
+      allow read: if canRead();
+      allow create, update: if canWrite() && isTestDataForFirstGrade(request.resource.data);
+      allow delete: if false;
+    }
+
+    match /secondGrade/{doc} {
+      allow read: if canRead();
+      allow create, update: if canWrite() && isTestDataForSecondGrade(request.resource.data);
+      allow delete: if false;
+    }
+
+    // 修正済みの正しいパス（images サブコレクション）
+    match /storageList/{gradeId}/images/{doc} {
+      allow read: if canRead();
+      // create: 必須最小限フィールドの存在とパス整合のみ
+      allow create: if canWrite()
+        && (gradeId in ['firstGrade', 'secondGrade'])
+        && isAssetDataCreate(request.resource.data, gradeId)
+        && request.resource.data.grade == gradeId;
+
+      // update: grade/key の不変性とパス整合のみ
+      allow update: if canWrite()
+        && (gradeId in ['firstGrade', 'secondGrade'])
+        && isAssetDataUpdate(request.resource.data, gradeId);
+
+      allow delete: if false;
+    }
+    
+
+
+  match /cacheIndex/{docId} {
+    allow get: if (canRead() || canWrite())
+      && (resource == null || isCacheIndexDoc(resource.data, docId));
+
+    allow list: if canRead();
+    allow create, update: if canWrite()
+      && isCacheIndexDoc(request.resource.data, docId);
+    allow delete: if false;
+  }
+
+    match /update-config/{docId} {
+      allow read: if canRead();
+      allow write: if false;
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

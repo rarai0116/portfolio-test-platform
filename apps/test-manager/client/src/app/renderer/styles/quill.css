@@ -1,0 +1,144 @@
+.ql-container{
+  min-height: 30px;
+  width: 100%;
+  background-color: var(--color-gray-200);
+  border: none !important;
+}
+
+.ql-toolbar{
+  background-color: var(--color-gray-200) ;
+  border: none !important;
+  border-bottom: 1px solid var(--color-gray-400) !important;
+
+}
+
+.ql-editor {
+  min-height: 120px;
+  max-height: 400px;
+  width: 100%;
+  resize: vertical;
+  overflow-x: hidden;
+  overflow-y: auto;  
+  object-fit: cover;
+  font-size: 15px;
+  max-width: 100%;
+}
+
+
+.ql-editor img {
+  zoom: 0.2;
+  display: inline-block;
+  vertical-align: middle;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.ql-editor img[data-editor-natural-aspect='1'] {
+  max-width: 100%;
+  height: auto !important;
+}
+
+.editor-container.ql-container.ql-snow {
+overflow: visible;
+}
+
+.editor-container.ql-container.ql-snow .ql-tooltip {
+  z-index: 40;
+  box-sizing: border-box;
+  max-width: calc(100% - 16px);
+}
+
+.editor-container.ql-container.ql-snow .ql-tooltip input[type='text'] {
+  width: min(170px, calc(100% - 110px));
+}
+
+.editor-container.ql-container.ql-snow .ql-tooltip[data-mode='formula'] {
+  width: min(420px, calc(100% - 16px));
+  max-width: calc(100% - 16px);
+  padding: 8px 12px;
+}
+
+.editor-container.ql-container.ql-snow
+  .ql-tooltip[data-mode='formula'].ql-editing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  white-space: normal;
+}
+
+.editor-container.ql-container.ql-snow
+  .ql-tooltip[data-mode='formula']::before {
+  flex: 0 0 auto;
+  margin-right: 0;
+}
+
+.editor-container.ql-container.ql-snow
+  .ql-tooltip[data-mode='formula'].ql-editing
+  input[type='text'] {
+  display: block;
+  flex: 1 1 180px;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid var(--color-gray-400);
+  background-color: var(--color-white);
+}
+
+.editor-container.ql-container.ql-snow
+  .ql-tooltip[data-mode='formula'].ql-editing
+  a.ql-action,
+.editor-container.ql-container.ql-snow
+  .ql-tooltip[data-mode='formula'].ql-editing
+  a.ql-remove {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.editor-container.ql-container.ql-snow
+  .ql-tooltip[data-mode='formula'].ql-editing
+  a.ql-action::after {
+  margin-left: 0;
+  padding-right: 0;
+  border-right: 0;
+}
+
+/* 追加 Close ボタン */
+.editor-container.ql-container.ql-snow
+  .ql-tooltip[data-mode='formula'].ql-editing
+  a.ql-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 32px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background-color: var(--color-white);
+  color: var(--color-demoblue);
+}
+
+.editor-container.ql-container.ql-snow
+  .ql-tooltip[data-mode='formula'].ql-editing
+  a.ql-remove::before {
+  content: '閉じる';
+  margin-left: 0;
+}
+
+.ql-editor .ql-formula {
+  cursor: pointer;
+}
+
+/* 追加:
+   ql-hidden 時は formula 用 display:flex より優先して必ず隠す */
+.editor-container.ql-container.ql-snow
+  .ql-tooltip[data-mode='formula'].ql-hidden {
+  display: none !important;
+}
+.editor-container.ql-container.ql-snow
+  .ql-tooltip[data-mode='formula'].ql-editing
+  a.ql-action::after {
+  content: '保存';
+}

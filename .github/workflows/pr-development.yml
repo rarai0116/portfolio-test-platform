@@ -1,0 +1,212 @@
+name: PR - Development checks
+
+# 公開用リポジトリでは自動実行させないため、workflow_dispatch に絞っている。
+# 実際の開発時のトリガーは、下にコメントアウトして残している。
+on:
+  workflow_dispatch: {}
+  # pull_request:
+  #   branches: [development]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+# env:
+#  NODE_VERSION: 22
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      client-changed: ${{ steps.check-client.outputs.changed }}
+      backend-changed: ${{ steps.check-backend.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for changes in apps/test-manager/client
+        id: check-client
+        shell: bash
+        run: |
+          set -eo pipefail
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          if git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -q '^apps/test-manager/client/'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check for changes in apps/test-manager/backend
+        id: check-backend
+        shell: bash
+        run: |
+          set -eo pipefail
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          if git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -q '^apps/test-manager/backend/'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  client:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.client-changed == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      # Firebase Emulator 用に Java をセットアップ
+      - name: Setup Java (for Firebase Emulators)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # キャッシュ Firebase エミュレータ
+      - name: Cache Firebase emulators
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: ${{ runner.os }}-firebase-emulators-v1
+          restore-keys: |
+            ${{ runner.os }}-firebase-emulators-          
+
+      # Firebase CLI を導入（グローバル）
+      - name: Install Firebase CLI
+        run: npm i -g firebase-tools@^14
+
+      - name: Install dependencies (client)
+        working-directory: apps/test-manager/client
+        run: pnpm install
+
+        # 以降も可能な限り続行するため always を付与
+      - name: Run Biome (lint)
+        if: ${{ always() }}
+        working-directory: apps/test-manager/client
+        run: pnpm run lint:biome
+
+      - name: Run ESLint
+        if: ${{ always() }}
+        working-directory: apps/test-manager/client
+        run: pnpm run lint:eslint
+
+      - name: Type check
+        if: ${{ always() }}
+        working-directory: apps/test-manager/client
+        run: pnpm run typecheck
+
+      # Functions Emulator 用に functions をビルド + 依存導入
+      - name: Install dependencies (backend/functions for emulator)
+        if: ${{ always() }}
+        working-directory: apps/test-manager/backend/functions
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Cloud Functions (TS -> JS)
+        if: ${{ always() }}
+        working-directory: apps/test-manager/backend/functions
+        run: pnpm run build
+
+      # エミュレータを起動して、その中で client のユニットテストを実行
+      - name: Run unit tests (client) against Firebase Emulators
+        if: ${{ always() }}
+        env:
+          # Web SDK 初期化に必要なダミー設定（emulator なら任意の非空でOK）
+          USE_FIREBASE_EMULATOR: 'true'
+          VITE_FIREBASE_API_KEY: 'fake-api-key'
+          VITE_FIREBASE_AUTH_DOMAIN: 'localhost'
+          VITE_FIREBASE_PROJECT_ID: 'demo-test'
+          VITE_FIREBASE_STORAGE_BUCKET: 'demo-test.appspot.com'
+          VITE_FIREBASE_MESSAGING_SENDER_ID: '1234567890'
+          VITE_FIREBASE_APP_ID: '1:1234567890:web:abcdef'
+          FIREBASE_REGION: 'asia-northeast1'
+          GCLOUD_PROJECT: 'demo-test'
+          GOOGLE_CLOUD_PROJECT: 'demo-test'
+          FIREBASE_PROJECT: 'demo-test'          
+        run: |
+          mkdir -p apps/test-manager/backend/_data
+
+          firebase --config apps/test-manager/backend/firebase.json \
+            emulators:exec \
+            --project demo-test \
+            --only auth,firestore,storage,functions \
+            --import apps/test-manager/backend/_data \
+            "pnpm -C apps/test-manager/client run test:unit"
+
+  backend:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.backend-changed == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - name: Setup Java (for Firebase Emulators)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install Firebase CLI
+        run: npm i -g firebase-tools@^14
+
+      - name: Install dependencies (backend)
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Biome (lint)
+        if: ${{ always() }}
+        working-directory: apps/test-manager/backend
+        run: pnpm run lint:biome
+
+      - name: Run ESLint
+        if: ${{ always() }}
+        working-directory: apps/test-manager/backend
+        run: pnpm run lint:eslint
+
+      - name: Type check
+        if: ${{ always() }}
+        working-directory: apps/test-manager/backend
+        run: pnpm run typecheck
+
+      # キャッシュ Firebase エミュレータ
+      - name: Cache Firebase emulators
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: ${{ runner.os }}-firebase-emulators-v1
+          restore-keys: |
+            ${{ runner.os }}-firebase-emulators-
+        
+      #  直接テストを実行（globalSetup がエミュレータ起動を担当）
+      - name: Run unit tests (backend)
+        if: ${{ always() }}
+        env:
+          GCLOUD_PROJECT: demo-test
+          GOOGLE_CLOUD_PROJECT: demo-test
+          FIREBASE_PROJECT: demo-test
+        run: |
+          pnpm -C apps/test-manager/backend run test

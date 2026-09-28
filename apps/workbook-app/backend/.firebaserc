@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "demo-workbook-app",
+    "production": "demo-workbook-app",
+    "development": "demo-workbook-app"
+  }
+}

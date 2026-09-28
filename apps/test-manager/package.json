@@ -1,0 +1,56 @@
+{
+	"name": "demo-test-manager",
+	"version": "2.1.0",
+	"type": "module",
+	"private": true,
+	"description": "問題データ管理総合プラットフォーム",
+	"lint": "biomejs",
+	"scripts": {
+		"client": "pnpm --filter=client",
+		"backend": "pnpm --filter=backend",
+		"functions": "pnpm --filter=functions",
+		"qaa": "pnpm --filter=qaa",
+		"dev": "pnpm --filter=client dev",
+		"dev:prod": "pnpm --filter=client dev:prod",
+		"dev:debug-preview": "pnpm --filter=client dev:debug-preview",
+		"dev:prod:debug-preview": "pnpm --filter=client dev:prod:debug-preview",
+		"build": "pnpm --filter=client build",
+		"lint": "pnpm run lint:biome && pnpm run lint:eslint",
+		"lint:biome": "biome lint .",
+		"lint:eslint": "eslint . --ext .ts,.tsx",
+		"test": "concurrently -k \"pnpm --filter=backend emulators:start-no-import\" \"wait-on http://127.0.0.1:4000 && pnpm --filter=client test\"",
+		"test:unit": "pnpm --filter=client test:unit",
+		"test:e2e": "pnpm --filter=client test:e2e",
+		"prcheck:client": "pnpm --filter=backend exec firebase --config firebase.json emulators:exec --project demo-test-manager --only auth,firestore,storage,functions \"pnpm -C ../client run test:unit\"",
+		"prcheck:backend": "pnpm --filter=backend pr-checks",
+		"firebase:emulators": "pnpm --filter=backend emulators:start",
+		"docs:spec": "pandoc \"./docs/current/siyousho.md\" --from markdown+raw_tex-implicit_figures --pdf-engine=xelatex --resource-path=\"docs;docs/images\" -o \"./dist/siyousho.pdf\"",
+		"docs:checklist": "pandoc \"./docs/current/checklist.md\" --from markdown+raw_tex-implicit_figures --pdf-engine=xelatex --resource-path=\"docs;docs/images\" -o \"./dist/checklist.pdf\"",
+		"docs:pdf": "pnpm run docs:spec && pnpm run docs:checklist && pnpm run docs:mockexam",
+		"docs:mockexam": "pandoc \"./docs/current/mock_exam_pdf_mode_siyousho.md\" --from markdown+raw_tex-implicit_figures --pdf-engine=xelatex --resource-path=\"docs;docs/images\" -o \"./dist/mock_exam_pdf_mode_siyousho.pdf\"",
+		"release:update": "pnpm --filter=backend release:update",
+		"release:update:local": "pnpm --filter=backend release:update:local"
+	},
+	"workspaces": [
+		"apps/*",
+		"backend/functions"
+	],
+	"engines": {
+		"node": ">=22.0.0",
+		"pnpm": ">=10.0.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.15",
+		"@types/node": "^22.19.15",
+		"@typescript-eslint/eslint-plugin": "^8.58.0",
+		"@typescript-eslint/parser": "^8.58.0",
+		"eslint": "^9.39.4",
+		"eslint-plugin-import": "^2.32.0",
+		"eslint-plugin-react": "^7.37.5",
+		"eslint-plugin-unicorn": "^61.0.2",
+		"wait-on": "^9.0.4"
+	},
+	"dependencies": {
+		"concurrently": "^9.2.1"
+	}
+}

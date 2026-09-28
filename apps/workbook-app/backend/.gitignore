@@ -1,0 +1,14 @@
+# emulator の作業ディレクトリ。起動のたびに書き換わり、終了時に上書き export される。
+# デモデータ本体は GitHub Release のアセットとして配布しており、ここへ置いたものを
+# 追跡すると数十 MB のバイナリが履歴へ積まれる（外部化した意味が失われる）。
+#
+# パス名に注意: workbook は `data`、test-manager は `_data` で食い違っている。
+# devLocal.cjs が `--import ./data` を渡すため、workbook 側の正本は `data`。
+#
+# 移植元ルートの .gitignore には `apps/**/data/` とあるが、ネストした .gitignore の
+# 基準はそのファイルのディレクトリなので `apps/workbook-app/apps/**/data/` を意味し、
+# 実在しないパスを指していて効かない。ここで実パスに合わせて塞ぐ。
+data/
+_data/
+firebase-export-*/
+.firebase/

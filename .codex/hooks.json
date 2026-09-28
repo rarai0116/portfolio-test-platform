@@ -1,0 +1,56 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .codex/hooks/session_start.js",
+            "statusMessage": "Loading repository workflow",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .codex/hooks/pre_tool_use_policy.js",
+            "statusMessage": "Checking repository tool policy",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "Bash|apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .codex/hooks/permission_request_policy.js",
+            "statusMessage": "Reviewing approval request",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .codex/hooks/post_tool_use_review.js",
+            "statusMessage": "Reviewing tool output",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
