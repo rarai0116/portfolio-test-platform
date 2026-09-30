@@ -1,6 +1,6 @@
 # スマホ問題集アプリ「WorkbookApp」
 
-![WorkbookAppのトップ画像](docs/images/product/top.png)
+<img src="docs/images/product/top.png" width="50%" alt="WorkbookAppのトップ画像">
 
 執筆者：arai
 
@@ -62,7 +62,7 @@ WorkbookAppは、データ化した過去問を、生徒が自宅や通学中に
 
 ## 主な機能
 ### 問題演習
-![問題演習の操作。出題条件を設定して問題を解く](docs/images/product/answerQuestion.gif)
+<img src="docs/images/product/answerQuestion.gif" width="50%" alt="問題演習の操作。出題条件を設定して問題を解く">
 カテゴリや問題数、難易度、出題形式などの出題条件を設定することで、その設定にあった問題がランダムに選ばれ出題されます。
 
 問題ごとの正誤・解説も表示され、それらの情報も記録されます。問題ごとに苦手マークをつけることもでき、出題設定で苦手な問題を重点的に解くようなこともできます。
@@ -78,7 +78,7 @@ WorkbookAppは、データ化した過去問を、生徒が自宅や通学中に
 生徒は、カテゴリごとに集中して勉強することが多いことを踏まえ、この機能を作成しました。
 
 ### 課題登録・スケジュール管理機能
-![カレンダーの課題から問題演習を始める操作](docs/images/product/answerQuestion_calendarTask.gif)
+<img src="docs/images/product/answerQuestion_calendarTask.gif" width="50%" alt="カレンダーの課題から問題演習を始める操作">
 <img src="docs/images/product/addTask.png" width="500" alt="課題の登録画面">
 講師が生徒に、期間限定の課題を課すことができます。課題が送信されると、期間中メイン画面で通知され、アプリ内カレンダーにも表示されます。
 

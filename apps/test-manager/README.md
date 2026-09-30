@@ -1,6 +1,6 @@
 # 問題データ管理システム「TestManager」
 
-![TestManagerのトップ画像](docs/images/product/top.png)
+<img src="docs/images/product/top.png" width="50%" alt="TestManagerのトップ画像">
 
 
 執筆者：arai
@@ -89,43 +89,43 @@ TestManagerは、データ化した試験問題を、学校の講師自身が編
 
 ## 主な機能
 ### 問題データのリスト表示・ソート・フィルタリング
-![問題データのリスト表示画面](docs/images/product/testDataList.png)
+<img src="docs/images/product/testDataList.png" width="50%" alt="問題データのリスト表示画面">
 登録されている数千問の問題データをリスト形式で一覧表示することができます。講師はこれらをフィルタリングやソートすることで、必要なデータを俯瞰的に確認・選択して、すばやく編集することができます。
 
 列の順番やレイアウトは講師自身で調整することもでき、この設定は他の画面に移動したりアプリを再起動しても保持されます。
 
-![問題データをCSVから取り込む画面](docs/images/product/testDataList_csvImport.png)
+<img src="docs/images/product/testDataList_csvImport.png" width="50%" alt="問題データをCSVから取り込む画面">
 
-![問題データをCSVへ出力する画面](docs/images/product/testDataList_csvExport.png)
+<img src="docs/images/product/testDataList_csvExport.png" width="50%" alt="問題データをCSVへ出力する画面">
 
 また、現在の問題データをCSV形式で出力したり、それを取り込むこともできます。
 
 この機能を使うことで、問題データのバックアップを取ったり、講師がExcelでデータを閲覧・編集・分析して活用することができます。
 
 ### 問題データ編集
-![問題データの編集画面](docs/images/product/testDataEditor.png)
+<img src="docs/images/product/testDataEditor.png" width="50%" alt="問題データの編集画面">
 この機能は、講師が問題データを出題可能な形で自由に編集・作成できるようにするためのものです。
 
 講師は、実際のレイアウトを確認しながら問題データを編集することができます。WordライクなUIで太字やイタリックなどの簡単な装飾をはじめ、数式(TeX)や画像の挿入も行えます。
 
-![問題データの自動チェックの表示](docs/images/product/testDataEditor_autoCheck.png)
+<img src="docs/images/product/testDataEditor_autoCheck.png" width="50%" alt="問題データの自動チェックの表示">
 
 問題を出題できる状態にしたり、[一問一答形式](../../README.md#出題形式)として出題したりするには、満たすべき条件があります。この条件を編集画面で自動的にチェックし、講師がその場で過不足を確認できるようにしました。
 
 問題データはまとめて選択して編集でき、一括での保存にも対応しています。リスト画面と編集画面を何度も往復しないで済むようにしています。
 
 ### 画像アセットの管理
-![画像アセットの一覧](docs/images/product/testDataEditor_ImageAssetList.png)
+<img src="docs/images/product/testDataEditor_ImageAssetList.png" width="50%" alt="画像アセットの一覧">
 
-![画像アセットを検索して問題へ挿入する操作](docs/images/product/testDataEditor_insertImage.gif)
+<img src="docs/images/product/testDataEditor_insertImage.gif" width="50%" alt="画像アセットを検索して問題へ挿入する操作">
 
-![画像アセットをアップロードする操作](docs/images/product/testDataEditor_imageUpload.gif)
+<img src="docs/images/product/testDataEditor_imageUpload.gif" width="50%" alt="画像アセットをアップロードする操作">
 講師が、本システムで使われている数千枚の画像の中から効率的に特定の画像を見つけられるよう、フィルタリング・ソート機能を提供しています。
 
 また、新規の画像をドラッグ&ドロップでアプリ上で簡単に新規登録することもできるようになっています。
 
 ### 複数人での同時編集・リアルタイム同期
-![複数人での同時編集がリアルタイムに同期される様子](docs/images/product/testDataEditor_realTimeSync.png)
+<img src="docs/images/product/testDataEditor_realTimeSync.png" width="50%" alt="複数人での同時編集がリアルタイムに同期される様子">
 
 問題データの編集は、短い期間に集中して行う必要があり、複数人で分担することが前提になります。そのため本アプリは、端末間でデータをリアルタイムに同期する機能を備えています。
 
@@ -138,17 +138,17 @@ TestManagerは、データ化した試験問題を、学校の講師自身が編
 
 これまで問題集や模擬試験の発行は、必要になるたびに開発側へ依頼していただく必要がありました。この機能により、講師が必要なときに自分で作成することができるようになりました。
 
-![問題集・模擬試験の出題条件を指定する画面](docs/images/product/createPdf_mondai.png)
+<img src="docs/images/product/createPdf_mondai.png" width="50%" alt="問題集・模擬試験の出題条件を指定する画面">
 
 出題年、問題形式（選択肢・[一問一答](../../README.md#出題形式)）、難易度、カテゴリなどの条件を指定すると、条件に合う問題が抽選されて一覧に並びます。一覧の問題は個別に手動で差し替えられるので、プレビューで仕上がりを確認しながら調整できます。
 
 調整した内容は、プレビューと同じレイアウトのままPDFとして出力されます。
 
-![出力したPDFの例](docs/images/product/createPdf_pdf.png)
+<img src="docs/images/product/createPdf_pdf.png" width="50%" alt="出力したPDFの例">
 
 指定した条件と問題の一覧は、ファイルとして保存して読み込めます。よく使う設定を毎回作り直す必要はありません。
 
-![保存した出題条件を読み込む操作](docs/images/product/createPdf_mondai_import.gif)
+<img src="docs/images/product/createPdf_mondai_import.gif" width="50%" alt="保存した出題条件を読み込む操作">
 
 
 ### PDFレイアウトプレビュー
@@ -165,7 +165,7 @@ TestManagerは、データ化した試験問題を、学校の講師自身が編
 
 リアルタイムプレビューモードでは紙のレイアウトは再現されませんが、編集作業を邪魔せずに編集内容が即座に反映されるようになっています。
 
-![数式を含む問題のPDFレイアウトプレビュー](docs/images/product/testDataEditor_katex.gif)
+<img src="docs/images/product/testDataEditor_katex.gif" width="50%" alt="数式を含む問題のPDFレイアウトプレビュー">
 
 
 ## システム構成
@@ -176,7 +176,7 @@ TestManagerは、講師の端末で動作するデスクトップアプリと、
 - **認証**：取引先組織のGoogle Workspaceアカウントを利用します
 - **他システムとの接続**：編集した問題データは、WorkbookApp側のデータベースへ移行できます
 
-![TestManagerのシステム構成図](docs/images/product/system_flow_diagram.png)
+<img src="docs/images/product/system_flow_diagram.png" width="50%" alt="TestManagerのシステム構成図">
 
 
 ## 各種資料リンク
