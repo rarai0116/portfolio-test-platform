@@ -1,12 +1,12 @@
 # 教材作成の手作業をなくし、学習改善を助けるDXプラットフォーム「TestPlatform」
-<img src="assets/top.png" width="50%" alt="TestPlatformのトップ画像">
+<p align="center"><img src="assets/top.png" alt="TestPlatformのトップ画像"></p>
 
  紙ベースの問題のデータ化から、問題データの管理、専用スマホ問題集アプリとの連携、問題集・模擬試験のPDF出力までを一貫して支援し、教材作成の省力化と学習内容の改善を後押しする総合システムです。 
 
   執筆者：arai
 
 ## TestPlatformとは 
-<img src="assets/Frame.png" width="50%" alt="業務フロー図。データ化、管理、PDF出力、スマホアプリの4業務">
+<p align="center"><img src="assets/Frame.png" width="80%" alt="業務フロー図。データ化、管理、PDF出力、スマホアプリの4業務"></p>
 
 このプロジェクトは、専門学校からの依頼により始まりました。当時、学校で使用されていた問題集や模擬試験は過去問を手作業で切り貼りして毎年作られていました。これらの作業は非常に手間がかかるうえに、学習記録をデータとして残しづらく、複雑な解析が難しい欠点がありました。
 
@@ -18,7 +18,7 @@ TestPlatformは、データ化により、これらの作業を省力化し、�
 
 ## 開発背景
 
-<img src="assets/timeline.png" width="50%" alt="4システムの開発・運用時期を示したタイムラインチャート">
+<p align="center"><img src="assets/timeline.png" width="80%" alt="4システムの開発・運用時期を示したタイムラインチャート"></p>
 
 本プロジェクトでは、データ化システムそのものの概念構築からスタートし、そのシステムの活用と運用を学校側へ移していき、実際の業務に耐えられる形に落とし込んでいきました。
 
@@ -40,7 +40,7 @@ TestPlatformは、データ化により、これらの作業を省力化し、�
 ※ 旧データ化システムと旧問題集作成アプリは、本ポートフォリオの収録対象外になります。旧問題集作成アプリの役割と、旧データ化システムの一部機能は、TestManagerに引き継がれています
 ## 現行のアーキテクチャ
 
-<img src="assets/systemArchitecture.png" width="50%" alt="TestPlatform全体のシステム構成図">
+<p align="center"><img src="assets/systemArchitecture.png" width="80%" alt="TestPlatform全体のシステム構成図"></p>
 
 問題データはTestManager側のデータを管理元として扱っています。WorkbookAppは、データ構造が異なるため、管理元から専用の形式に変換したデータを使用しています。
 
@@ -58,28 +58,32 @@ TestPlatformは、データ化により、これらの作業を省力化し、�
 | arai | プロジェクト主導・設計・基盤実装 |
 | goto | デザイン・フロントエンド実装   |
 
-- [araiのworkbookAppにおける実績](apps/workbook-app/docs/contributors/arai.md)
-- [araiのtestManagerにおける実績](apps/test-manager/docs/contributors/arai.md)
-- [gotoのworkbookAppにおける実績](apps/workbook-app/docs/contributors/goto.md)
-- [gotoのtestManagerにおける実績](apps/test-manager/docs/contributors/goto.md)
+- [araiのworkbookAppにおける担当・実績](apps/workbook-app/docs/contributors/arai.md)
+- [araiのtestManagerにおける担当・実績](apps/test-manager/docs/contributors/arai.md)
+- [gotoのworkbookAppにおける担当・実績](apps/workbook-app/docs/contributors/goto.md)
+- [gotoのtestManagerにおける担当・実績](apps/test-manager/docs/contributors/goto.md)
 
 ## 用語
 
 ### 出題形式
 
 - **選択式**：複数の選択肢から答えを選ぶ、実際の試験と同じ形式です
-  <img src="assets/choices_sample.png" width="50%" alt="選択式の問題の例">
+
+  <img src="assets/choices_sample.png" width="500" alt="選択式の問題の例">
 
 - **一問一答形式**：過去問の選択肢を1つずつ分解し、それぞれを正誤問題として出題する形式です。ユーザーは○✕で回答します。
-<img src="assets/qaa_sample.png" width="50%" alt="一問一答形式の問題の例">
+
+<img src="assets/qaa_sample.png" width="500" alt="一問一答形式の問題の例">
 
 ### 出力物
 
 - **問題集**：カテゴリ、問題数、難易度などを指定し、条件に合う問題を集めたものです
-<img src="assets/workbook_sample.png" width="50%" alt="問題集の例">
+
+<img src="assets/workbook_sample.png" width="500" alt="問題集の例">
 
 - **模擬試験**：カテゴリごとの出題枠に沿って構成した、実際の試験に近い形のものです
-<img src="assets/exam_sample.png" width="50%" alt="模擬試験の例">
+
+<img src="assets/exam_sample.png" width="500" alt="模擬試験の例">
 
 ## 注意事項
 

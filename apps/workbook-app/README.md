@@ -1,8 +1,26 @@
 # スマホ問題集アプリ「WorkbookApp」
 
-<img src="docs/images/product/top.png" width="50%" alt="WorkbookAppのトップ画像">
+<img src="docs/images/product/top.png" alt="WorkbookAppのトップ画像">
 
 執筆者：arai
+
+## 目次
+
+- [概要](#概要)
+- [期間](#期間)
+- [開発経緯・目的](#開発経緯目的)
+- [開発メンバー・担当範囲](#開発メンバー担当範囲)
+- [開発方針・気をつけたこと](#開発方針気をつけたこと)
+- [主な機能](#主な機能)
+  - [問題演習](#問題演習)
+  - [問題設定保存機能](#問題設定保存機能)
+  - [課題登録・スケジュール管理機能](#課題登録スケジュール管理機能)
+  - [進捗分析機能](#進捗分析機能)
+  - [オフライン対応](#オフライン対応)
+- [システム構成](#システム構成)
+- [各種資料リンク](#各種資料リンク)
+  - [関連ページ](#関連ページ)
+  - [ソースコードとローカル起動](#ソースコードとローカル起動)
 
 ## 概要
 WorkbookAppは、データ化した過去問を、生徒が自宅や通学中に学習できる形で提供した学内向けのiOS／Android問題集アプリです。
@@ -62,7 +80,7 @@ WorkbookAppは、データ化した過去問を、生徒が自宅や通学中に
 
 ## 主な機能
 ### 問題演習
-<img src="docs/images/product/answerQuestion.gif" width="50%" alt="問題演習の操作。出題条件を設定して問題を解く">
+<img src="docs/images/product/answerQuestion.gif" width="300" alt="問題演習の操作。出題条件を設定して問題を解く">
 カテゴリや問題数、難易度、出題形式などの出題条件を設定することで、その設定にあった問題がランダムに選ばれ出題されます。
 
 問題ごとの正誤・解説も表示され、それらの情報も記録されます。問題ごとに苦手マークをつけることもでき、出題設定で苦手な問題を重点的に解くようなこともできます。
@@ -70,7 +88,7 @@ WorkbookAppは、データ化した過去問を、生徒が自宅や通学中に
 通常の問題集モードのほかに、実際の試験の形式に則った時間制限・出題がされる模擬試験モードもあります。
 
 ### 問題設定保存機能
-<img src="docs/images/product/saveSetting.png" width="500" alt="問題設定の保存画面">
+<img src="docs/images/product/saveSetting.png" width="300" alt="問題設定の保存画面">
 よく使う問題設定は、保存して何度も呼び出して使うことができます。
 
 設定は、自由に名前をつけられあとから削除することもできます。
@@ -78,17 +96,22 @@ WorkbookAppは、データ化した過去問を、生徒が自宅や通学中に
 生徒は、カテゴリごとに集中して勉強することが多いことを踏まえ、この機能を作成しました。
 
 ### 課題登録・スケジュール管理機能
-<img src="docs/images/product/answerQuestion_calendarTask.gif" width="50%" alt="カレンダーの課題から問題演習を始める操作">
-<img src="docs/images/product/addTask.png" width="500" alt="課題の登録画面">
+<p align="center">
+<img src="docs/images/product/answerQuestion_calendarTask.gif" width="300" alt="カレンダーの課題から問題演習を始める操作">
+<img src="docs/images/product/addTask.png" width="300" alt="課題の登録画面">
+</p>
+
 講師が生徒に、期間限定の課題を課すことができます。課題が送信されると、期間中メイン画面で通知され、アプリ内カレンダーにも表示されます。
 
 また、自分で課題を作ることもでき、自分の学習計画をアプリ内で立てることもできます。
 
 ### 進捗分析機能
-<img src="docs/images/product/dataAnalysis_1.png" width="500" alt="進捗分析の総合成績タブ。正解・苦手・未回答の割合と、学科別のレーダーチャート">
+<p align="center">
+<img src="docs/images/product/dataAnalysis_1.png" width="30%" alt="進捗分析の総合成績タブ。正解・苦手・未回答の割合と、学科別のレーダーチャート">
+<img src="docs/images/product/dataAnalysis_3.png" width="30%" alt="進捗分析の学習時間タブ。日別の学習時間の棒グラフと連続勉強日数">
+<img src="docs/images/product/dataAnalysis_2.png" width="30%" alt="進捗分析のカテゴリ成績タブ。学科と分野ごとの正解率">
+</P>
 
-<img src="docs/images/product/dataAnalysis_3.png" width="500" alt="進捗分析の学習時間タブ。日別の学習時間の棒グラフと連続勉強日数">
-<img src="docs/images/product/dataAnalysis_2.png" width="500" alt="進捗分析のカテゴリ成績タブ。学科と分野ごとの正解率">
 自分の問題演習の進捗を確認して、どれが苦手か、あまり勉強できていないカテゴリなのかを分析できます。
 
 データベース上では、本日分・本日分以前のデータを分けることで、日々の進捗と通期の進捗を分けて表示することができるようにしました。
@@ -104,7 +127,7 @@ firebaseのオフライン機能を使うことで、オンライン時にも不
 ## システム構成
 WorkbookAppは、生徒の端末で動作するスマートフォンアプリと、データを保持するクラウド基盤で構成されています。
 
-<img src="docs/images/product/systemArchitecture.png" width="700" alt="WorkbookAppのシステム構成図。クライアント、Firebase、端末内データの関係">
+<img src="docs/images/product/systemArchitecture.png" width="80%" alt="WorkbookAppのシステム構成図。クライアント、Firebase、端末内データの関係">
 
 - **クライアント**：Expo／React Nativeで開発したiOS／Androidアプリ。問題データと画像は端末内に保存し、オフラインでも学習できます
 - **バックエンド**：Firebase。全利用者に共通する問題データとアセット情報はRealtime Database、利用者ごとに分かれる課題・回答結果・進捗はFirestore、画像などのファイル本体はCloud Storageで扱います
@@ -123,5 +146,6 @@ WorkbookAppは、生徒の端末で動作するスマートフォンアプリと
 
 ### ソースコードとローカル起動
 
-- [クライアント](client)：Expo、React Native、TypeScript
-- [バックエンド](backend)：Cloud Functions、Realtime Database／Firestore／Storage Rules
+- [クライアントのソースコード](client)：Expo、React Native、TypeScript
+- [バックエンドのソースコード](backend)：Cloud Functions、Realtime Database／Firestore／Storage Rules
+※ ローカル起動環境は現在準備中です。

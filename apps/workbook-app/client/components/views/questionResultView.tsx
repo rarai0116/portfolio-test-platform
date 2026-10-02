@@ -28,7 +28,6 @@ import {
 import {QuestionAndChoicesViewContext} from '../hooks/useQuestionsAndChoicesViewContext';
 import {HomeHeaderButton} from '../organisms/headerButtons';
 import {ButtonContextProvider, ButtonStates} from '../hooks/useButtonContext';
-import {QuestionSettingViewContext} from '../hooks/useQuestionSettingViewContext';
 import {questionSettingState, questionState} from '../../types/commonUnionType';
 import {TaskDataContext} from '../hooks/useTaskDataContext';
 import PrimaryShortButton from '@/components/parts/primaryShortButton';
@@ -58,7 +57,6 @@ const QuestionResultView = (_props: QuestionResultViewProps) => {
   const {setAnswerlingTestSettingData, getTestDataList, addSavedSettingList} =
     useContext(GlobalSaveDataContext);
   const {taskSettingList} = useContext(TaskDataContext);
-  const {settingState} = useContext(QuestionSettingViewContext);
   const [isQuit, setIsQuit] = useState<boolean>(false);
 
   const resultList = useMemo(() => {
@@ -144,8 +142,11 @@ const QuestionResultView = (_props: QuestionResultViewProps) => {
         });
       }
 
-      if (settingState === questionSettingState.task) {
-        const {id} = currentPlayData!.settingCardData;
+      if (
+        currentPlayData?.settingCardData.settingState ===
+        questionSettingState.task
+      ) {
+        const {id} = currentPlayData.settingCardData;
         const taskSetting = taskSettingList[id]?.taskSetting;
         if (taskSetting) {
           addSavedSettingList({
@@ -189,7 +190,6 @@ const QuestionResultView = (_props: QuestionResultViewProps) => {
       addSavedSettingList,
       taskSettingList,
       currentPlayData,
-      settingState,
     ],
   );
 
