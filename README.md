@@ -1,5 +1,5 @@
 # 教材作成の手作業をなくし、学習改善を助けるDXプラットフォーム「TestPlatform」
-<p align="center"><img src="assets/top.png" alt="TestPlatformのトップ画像"></p>
+<p align="center"><img src="assets/top.png" width="80%" alt="TestPlatformのトップ画像"></p>
 
  紙ベースの問題のデータ化から、問題データの管理、専用スマホ問題集アプリとの連携、問題集・模擬試験のPDF出力までを一貫して支援し、教材作成の省力化と学習内容の改善を後押しする総合システムです。 
 

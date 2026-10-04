@@ -1,6 +1,6 @@
 # 問題データ管理システム「TestManager」
 
-<p align="center" ><img src="docs/images/product/top.png" alt="TestManagerのトップ画像"></p>
+<p align="center" ><img src="docs/images/product/top.png" width="80%" alt="TestManagerのトップ画像"></p>
 
 
 執筆者：arai
@@ -77,7 +77,7 @@ TestManagerは、データ化した試験問題を、学校の講師自身が編
 運用も含めて取引先が実際に業務で使用するアプリだということを意識して、**取引先が業務に自然に組み込めるようにすること**を今回の方針として定めました。
 
 ### 業務要件の具体化
-今回は、納品形式であるため、[前回のような](workbookApp product/#開発方針・気をつけたこと)改善フローを組む方法はとれませんでした。
+今回は、納品形式であるため、[前回のような](../workbook-app/README.md#開発方針気をつけたこと)改善フローを組む方法はとれませんでした。
 
 そのため、要件や仕様の決定に労力をかけました。職場の見学を実際にさせていただいたり、講師にアンケートを実施する、複数回のヒアリングを実施するなどして業務要件と仕様を事前に固めました。
 
@@ -130,14 +130,14 @@ TestManagerは、データ化した試験問題を、学校の講師自身が編
 
 講師は、実際のレイアウトを確認しながら問題データを編集することができます。WordライクなUIで太字やイタリックなどの簡単な装飾をはじめ、数式(TeX)や画像の挿入も行えます。
 
-<img src="docs/images/product/testDataEditor_autoCheck.png" width="50%" alt="問題データの自動チェックの表示">
+<img src="docs/images/product/testDataEditor_autoCheck.png" width="40%" alt="問題データの自動チェックの表示">
 
 問題を出題できる状態にしたり、[一問一答形式](../../README.md#出題形式)として出題したりするには、満たすべき条件があります。この条件を編集画面で自動的にチェックし、講師がその場で過不足を確認できるようにしました。
 
 問題データはまとめて選択して編集でき、一括での保存にも対応しています。リスト画面と編集画面を何度も往復しないで済むようにしています。
 
 ### 画像アセットの管理
-<img src="docs/images/product/testDataEditor_ImageAssetList.png" width="700" alt="画像アセットの一覧">
+<img src="docs/images/product/testDataEditor_ImageAssetList.png" width="40%" alt="画像アセットの一覧">
 
 <img src="docs/images/product/testDataEditor_insertImage.gif" width="700" alt="画像アセットを検索して問題へ挿入する操作">
 
