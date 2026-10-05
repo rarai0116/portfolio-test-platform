@@ -148,4 +148,3 @@ WorkbookAppは、生徒の端末で動作するスマートフォンアプリと
 
 - [クライアントのソースコード](client)：Expo、React Native、TypeScript
 - [バックエンドのソースコード](backend)：Cloud Functions、Realtime Database／Firestore／Storage Rules
-※ ローカル起動環境は現在準備中です。

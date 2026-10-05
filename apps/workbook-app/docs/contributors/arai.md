@@ -594,4 +594,3 @@ flowchart LR
 - [クライアントのソースコード](../../client)：React NativeとExpo
 - [バックエンドのソースコード](../../backend)：Cloud FunctionsとSecurity Rules
 ※ リンクのパスは、公開時のリポジトリ構成に合わせて調整します。
-※ ローカル起動環境は現在準備中です
